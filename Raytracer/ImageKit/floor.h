@@ -9,7 +9,7 @@ public:
     //PLEASE IMPLEMENT THE 'TRUE' RAY-PLANE INTERSECTION
     //ON SLIDE PAGE 21 IN 'RAY-SHADE.PDF' IN SYLLABUS
     virtual bool Intersect(Vector3 Origin, Vector3 Direction,
-                           float * t_out, Vector3 * normal_out)
+                           float * t_out, Vector3 * normal_out, Vector3 *col_out)
     {
         //My Test
         Vector3 A(0, 512, 0);

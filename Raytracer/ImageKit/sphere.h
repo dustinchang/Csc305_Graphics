@@ -4,14 +4,15 @@
 class Sphere : public Object
 {
 public:
-    Sphere(Vector3 Center_in, float Radius_in)
+    Sphere(Vector3 Center_in, float Radius_in, Vector3 color_in)
     {
         Center = Center_in;
         Radius = Radius_in;
+        color = color_in;
     }
 
     virtual bool Intersect(Vector3 Origin, Vector3 Direction,
-                           float *t_out, Vector3 *normal_out)
+                           float *t_out, Vector3 *normal_out, Vector3 *col_out)
     {
         Vector3 EO = Minus(Center, Origin);
         float v = DotProduct(EO, Direction);
@@ -32,6 +33,7 @@ public:
             IntersectionPoint = Add(IntersectionPoint, Origin);
             Vector3 SurfaceNormal = Minus(IntersectionPoint, Center);
             (*normal_out) = Normalize(SurfaceNormal);
+            *col_out = color;
             return true;
         } else
         {
@@ -41,4 +43,5 @@ public:
 
     Vector3 Center;
     float Radius;
+    Vector3 color;
 };

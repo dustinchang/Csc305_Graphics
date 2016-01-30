@@ -25,14 +25,14 @@ void SetColor(Pixel & px, Vector3 CalculatedColor)
 }
 
 Vector3 AmbientColour(20, 20, 20);
-Vector3 DiffuseColour(250, 250, 250);//Might be too high
+Vector3 DiffuseColour(200, 200, 200);//Might be too high
 Vector3 BackgroundColor(173,255,47);
 Vector3 Light(128, 128, 0);
 //******WARNING: THIS CODE MAKES EVERYTHING IN THE SCENE LOOKS THE SAME****
 //SIMPLY COPY THIS CODE DOES NOT MEET THE REQUIREMENT FOR ASSIGNMENT 1
 //YOU ARE EXPECTED TO HAVE DIFFERENT SURFACE MATERIALS FOR DIFFERENT OBJECTS
 //IN YOUR SCENE.
-Pixel DiffuseShade(Vector3 Surface, Vector3 Normal)
+Pixel DiffuseShade(Vector3 Surface, Vector3 Normal, Vector3 colors)
 {
     //These colours will give the sphere a red appearance
     Pixel shade;
@@ -42,7 +42,7 @@ Pixel DiffuseShade(Vector3 Surface, Vector3 Normal)
     Vector3 PixelColour = AmbientColour;
     if (DiffuseTerm > 0)
     {
-        Vector3 PixelDiffuseColour = MultiplyScalar(DiffuseColour, DiffuseTerm);
+        Vector3 PixelDiffuseColour = MultiplyScalar(colors, DiffuseTerm);
         PixelColour = Add(PixelColour, PixelDiffuseColour);
     }
     SetColor(shade, PixelColour);
@@ -53,12 +53,12 @@ void RayTraceSphere(Image * pImage)
 {
     std::vector<Object *> pObjectList;
     Floor floor;
-    Plane plane(Vector3(0, 850, 0), Vector3(0, -3, 1));
+    Plane plane(Vector3(0, 850, 0), Vector3(0, -3, 1), Vector3(102, 205, 170));
     Sphere sphere(Vector3(256, 256, 450), //center
-                  250);//radius
+                  250, Vector3(235, 69, 30));//radius
     //pObjectList.push_back(&floor);
     pObjectList.push_back(&plane);
-    //pObjectList.push_back(&sphere);
+    pObjectList.push_back(&sphere);
 
     Vector3 Camera(256, 256, -200);	//Was z=-400
 
@@ -73,6 +73,7 @@ void RayTraceSphere(Image * pImage)
 
             float t_min = 999999;
             Vector3 Normal_min;
+            Vector3 colors;
             bool HasIntersection = false;
 
             //Intersect with the list of objects
@@ -80,8 +81,9 @@ void RayTraceSphere(Image * pImage)
             {
                 float t;
                 Vector3 normal;
+                Vector3 col;
                 bool DoesIntersect = pObjectList[k]->Intersect(Camera, Direction,
-                                                             &t, &normal);
+                                                             &t, &normal, &col);
                 if (DoesIntersect)
                 {
                     HasIntersection = true;
@@ -89,6 +91,7 @@ void RayTraceSphere(Image * pImage)
                     {
                         t_min = t;
                         Normal_min = normal;
+                        colors = col;
                     }
                 }
             }
@@ -97,7 +100,7 @@ void RayTraceSphere(Image * pImage)
 			{
                 Vector3 Intersection = MultiplyScalar(Direction, t_min);
 				        Intersection = Add(Intersection, Camera);
-                px = DiffuseShade(Intersection, Normal_min);
+                px = DiffuseShade(Intersection, Normal_min, colors);
 			}//if t > 0
 			else //No Intersection, set background colour
 			{
