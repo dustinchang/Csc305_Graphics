@@ -55,12 +55,12 @@ void RayTraceSphere(Image * pImage)
     Sphere sphere(Vector3(256, 256, 450), //center
                   250);//radius
     pObjectList.push_back(&floor);
-    pObjectList.push_back(&sphere);
+    //pObjectList.push_back(&sphere);
 
     Vector3 Camera(256, 256, -200);	//Was z=-400
 
     for (int i = 0; i < 512; ++ i)
-		for (int j = 0; j < 512; ++j)
+        for (int j = 0; j < 512; ++j)
 		{
             //Set up the ray we're tracing: R = O + tD;
             Pixel px;
