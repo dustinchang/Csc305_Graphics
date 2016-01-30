@@ -1,9 +1,10 @@
-//This is a simple ray tracing example showing how to use the Image 
+//This is a simple ray tracing example showing how to use the Image
 #pragma once
 #include "Image.h"
 #include <vector>
 #include "sphere.h"
 #include "floor.h"
+#include "plane.h"
 #include <iostream>
 
 void SetColor(Pixel & px, Vector3 CalculatedColor)
@@ -24,8 +25,8 @@ void SetColor(Pixel & px, Vector3 CalculatedColor)
 }
 
 Vector3 AmbientColour(20, 20, 20);
-Vector3 DiffuseColour(250, 250, 250);
-Vector3 BackgroundColor(8, 8, 8);
+Vector3 DiffuseColour(250, 250, 250);//Might be too high
+Vector3 BackgroundColor(173,255,47);
 Vector3 Light(128, 128, 0);
 //******WARNING: THIS CODE MAKES EVERYTHING IN THE SCENE LOOKS THE SAME****
 //SIMPLY COPY THIS CODE DOES NOT MEET THE REQUIREMENT FOR ASSIGNMENT 1
@@ -52,9 +53,11 @@ void RayTraceSphere(Image * pImage)
 {
     std::vector<Object *> pObjectList;
     Floor floor;
+    Plane plane(Vector3(0, 850, 0), Vector3(0, -3, 1));
     Sphere sphere(Vector3(256, 256, 450), //center
                   250);//radius
-    pObjectList.push_back(&floor);
+    //pObjectList.push_back(&floor);
+    pObjectList.push_back(&plane);
     //pObjectList.push_back(&sphere);
 
     Vector3 Camera(256, 256, -200);	//Was z=-400
@@ -65,8 +68,8 @@ void RayTraceSphere(Image * pImage)
             //Set up the ray we're tracing: R = O + tD;
             Pixel px;
             Vector3 PixelPosition((float)i, (float)j, 0);
-			Vector3 Direction = Minus(PixelPosition, Camera);
-			Direction = Normalize(Direction);
+			      Vector3 Direction = Minus(PixelPosition, Camera);
+			      Direction = Normalize(Direction);
 
             float t_min = 999999;
             Vector3 Normal_min;
@@ -91,16 +94,16 @@ void RayTraceSphere(Image * pImage)
             }
 
             if (HasIntersection)
-			{              
+			{
                 Vector3 Intersection = MultiplyScalar(Direction, t_min);
-				Intersection = Add(Intersection, Camera);
+				        Intersection = Add(Intersection, Camera);
                 px = DiffuseShade(Intersection, Normal_min);
 			}//if t > 0
 			else //No Intersection, set background colour
 			{
 				SetColor(px, BackgroundColor);
 			}
-			 
+
 			(*pImage)(i, j) = px;
 		}
 }

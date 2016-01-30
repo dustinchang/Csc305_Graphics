@@ -12,9 +12,9 @@ public:
                            float * t_out, Vector3 * normal_out)
     {
         //My Test
-        Vector3 A(0, 512, 450);
-        Vector3 B(100, 256, 450);
-        Vector3 C(512, 512, 450);
+        Vector3 A(0, 512, 0);
+        Vector3 B(100, 256, 800);
+        Vector3 C(512, 512, 0);
         Vector3 pt0(125, 350, 450);
 
         Vector3 BO = Minus(pt0, Origin);
@@ -22,9 +22,12 @@ public:
         Vector3 norm = CrossProduct(Minus(B, A), Minus(B, C));
 
         float t = -1;
-        if(DotProduct(norm, Direction) != 0) {
+        //if(DotProduct(norm, Direction) != 0) {
             t = DotProduct(norm, Minus(B, Origin)) / DotProduct(norm, Direction);
-        }
+        //}
+        //*t_out = t;
+
+        //return true;
 
         Vector3 pt = Add(Origin, MultiplyScalar(Direction, t));
 
@@ -48,6 +51,7 @@ public:
               }
             }
         }//End of if(t > 0)
+
 
 
         /* Original Code
