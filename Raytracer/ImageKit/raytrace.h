@@ -25,13 +25,11 @@ void SetColor(Pixel & px, Vector3 CalculatedColor)
 }
 
 Vector3 AmbientColour(20, 20, 20);
-Vector3 DiffuseColour(200, 200, 200);//Might be too high
+Vector3 DiffuseColour(200, 200, 200);
 Vector3 BackgroundColor(25,25,25);
 Vector3 Light(-128, -500, -128);
-//******WARNING: THIS CODE MAKES EVERYTHING IN THE SCENE LOOKS THE SAME****
-//SIMPLY COPY THIS CODE DOES NOT MEET THE REQUIREMENT FOR ASSIGNMENT 1
-//YOU ARE EXPECTED TO HAVE DIFFERENT SURFACE MATERIALS FOR DIFFERENT OBJECTS
-//IN YOUR SCENE.
+
+/*Provide Diffuse Shading, while also passing in other colors*/
 Pixel DiffuseShade(Vector3 Surface, Vector3 Normal, Vector3 colors)
 {
     //These colours will give the sphere a red appearance
@@ -42,7 +40,7 @@ Pixel DiffuseShade(Vector3 Surface, Vector3 Normal, Vector3 colors)
     Vector3 PixelColour = AmbientColour;
     if (DiffuseTerm > 0)
     {
-        Vector3 PixelDiffuseColour = MultiplyScalar(colors, DiffuseTerm);
+        Vector3 PixelDiffuseColour = MultiplyScalar(colors, DiffuseTerm);//Changing diffuse color
         PixelColour = Add(PixelColour, PixelDiffuseColour);
     }
     SetColor(shade, PixelColour);
@@ -51,6 +49,7 @@ Pixel DiffuseShade(Vector3 Surface, Vector3 Normal, Vector3 colors)
 
 void RayTraceSphere(Image * pImage)
 {
+    //Creation of objects
     std::vector<Object *> pObjectList;
     Floor floor;
     Plane plane(Vector3(0, 850, 0), Vector3(0, -3, 1), Vector3(102, 205, 170));
@@ -58,14 +57,17 @@ void RayTraceSphere(Image * pImage)
                   250,//radius
                   Vector3(220, 20, 60));//Color
     Sphere sphere2(Vector3(50, 250, 375), 150, Vector3(0, 153, 153));
+    Sphere sphere3(Vector3(0, 425, 165), 75, Vector3(255, 153, 153));
     //pObjectList.push_back(&floor);
     //pObjectList.push_back(&plane);
     pObjectList.push_back(&sphere);
     pObjectList.push_back(&sphere2);
+    pObjectList.push_back(&sphere3);
     pObjectList.push_back(&plane);
 
     Vector3 Camera(256, 256, -200);	//Was z=-400
 
+    //Cycle through image pixels
     for (int i = 0; i < 512; ++ i)
         for (int j = 0; j < 512; ++j)
         {
@@ -106,18 +108,12 @@ void RayTraceSphere(Image * pImage)
                 Vector3 Intersection = MultiplyScalar(Direction, t_min);
                 Intersection = Add(Intersection, Camera);
 
-
                 Vector3 Intersection2 = Add(Intersection, Camera);
-                //Intersection2 = Normalize(Intersection2);
+                Vector3 Light_Direction = Normalize(Minus(Light,Intersection2));
 
-                //Vector3 IL = Minus(Light, Intersection2);
-                //IL = Normalize(IL);
-
-                //Put shadow feelers here
+                //Shadow feelers here
                 for(int l = 0; l< pObjectList.size(); ++ l) {
-                  float t;
-                  Vector3 normal;
-                  Vector3 col;
+                  //Placement holders so as to not overight previous t, norm, & col
                   float v1;
                   Vector3 v2;
                   Vector3 v3;
@@ -128,9 +124,8 @@ void RayTraceSphere(Image * pImage)
                     }
                 }//End of Shadow for loop
 
-
                 px = DiffuseShade(Intersection, Normal_min, colors);
-			           }//if t > 0
+			           }
 			          else //No Intersection, set background colour
 			          {
 				          SetColor(px, BackgroundColor);
