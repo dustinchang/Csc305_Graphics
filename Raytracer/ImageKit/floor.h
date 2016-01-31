@@ -4,30 +4,22 @@
 class Floor : public Object
 {
 public:
-    //****WARNING: YOU CANNOT COPY THIS CODE FOR YOUR ASSIGNMENT 1****
-    //This is a partial demo, and it is ***INCORRECT***
-    //PLEASE IMPLEMENT THE 'TRUE' RAY-PLANE INTERSECTION
-    //ON SLIDE PAGE 21 IN 'RAY-SHADE.PDF' IN SYLLABUS
+    Floor(Vector3 pt_a, Vector3 pt_b, Vector3 pt_c, Vector3 color_in, Vector3 point_in) {
+      A = pt_a;
+      B = pt_b;
+      C = pt_c;
+      color = color_in;
+      pt0 = point_in;
+    }
+
     virtual bool Intersect(Vector3 Origin, Vector3 Direction,
                            float * t_out, Vector3 * normal_out, Vector3 *col_out)
     {
-        //My Test
-        Vector3 A(0, 512, 0);
-        Vector3 B(100, 256, 800);
-        Vector3 C(512, 512, 0);
-        Vector3 pt0(125, 350, 450);
-
-        Vector3 BO = Minus(pt0, Origin);
-        //float v = DotProduct(BO, Direction);
+        //Vector3 BO = Minus(pt0, Origin);
         Vector3 norm = CrossProduct(Minus(B, A), Minus(B, C));
 
         float t = -1;
-        //if(DotProduct(norm, Direction) != 0) {
-            t = DotProduct(norm, Minus(B, Origin)) / DotProduct(norm, Direction);
-        //}
-        //*t_out = t;
-
-        //return true;
+        t = DotProduct(norm, Minus(B, Origin)) / DotProduct(norm, Direction);
 
         Vector3 pt = Add(Origin, MultiplyScalar(Direction, t));
 
@@ -45,6 +37,7 @@ public:
                 IntersectionPoint = Add(IntersectionPoint, Origin);
                 Vector3 SurfaceNormal = Minus(IntersectionPoint, pt0);
                 (*normal_out) = Normalize(SurfaceNormal);
+                *col_out = color;
                 return true;
               } else {
                 return false;
@@ -66,6 +59,11 @@ public:
         return false;
         */
     }//End of virtual bool Intersect
+    Vector3 A;
+    Vector3 B;
+    Vector3 C;
+    Vector3 color;
+    Vector3 pt0;
 };//End of class Floor
 
 

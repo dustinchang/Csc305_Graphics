@@ -26,8 +26,8 @@ void SetColor(Pixel & px, Vector3 CalculatedColor)
 
 Vector3 AmbientColour(20, 20, 20);
 Vector3 DiffuseColour(200, 200, 200);//Might be too high
-Vector3 BackgroundColor(25,25,25);
-Vector3 Light(-128, -500, -128);
+Vector3 BackgroundColor(0,153,153);//25, 25, 25
+Vector3 Light(-128, -500, -575);
 //******WARNING: THIS CODE MAKES EVERYTHING IN THE SCENE LOOKS THE SAME****
 //SIMPLY COPY THIS CODE DOES NOT MEET THE REQUIREMENT FOR ASSIGNMENT 1
 //YOU ARE EXPECTED TO HAVE DIFFERENT SURFACE MATERIALS FOR DIFFERENT OBJECTS
@@ -52,17 +52,19 @@ Pixel DiffuseShade(Vector3 Surface, Vector3 Normal, Vector3 colors)
 void RayTraceSphere(Image * pImage)
 {
     std::vector<Object *> pObjectList;
-    Floor floor;
+    Floor floor(Vector3(0, 512, 0), Vector3(100, 256, 0), Vector3(535, 512, 0), Vector3(204, 204, 0), Vector3(256, 350, 450));
+    Floor floor2(Vector3(100, 256, 0), Vector3(400, 256, 0), Vector3(512, 512, 0), Vector3(204, 204, 0), Vector3(256, 350, 450));
     Plane plane(Vector3(0, 850, 0), Vector3(0, -3, 1), Vector3(102, 205, 170));
-    Sphere sphere(Vector3(450, 384, 450), //center
-                  250,//radius
+    Sphere sphere(Vector3(250, 225, -50), //center
+                  50,//radius
                   Vector3(220, 20, 60));//Color
     Sphere sphere2(Vector3(50, 250, 375), 150, Vector3(0, 153, 153));
-    //pObjectList.push_back(&floor);
+    pObjectList.push_back(&floor);
+    pObjectList.push_back(&floor2);
     //pObjectList.push_back(&plane);
     pObjectList.push_back(&sphere);
-    pObjectList.push_back(&sphere2);
-    pObjectList.push_back(&plane);
+    //pObjectList.push_back(&sphere2);
+    //pObjectList.push_back(&plane);
 
     Vector3 Camera(256, 256, -200);	//Was z=-400
 
