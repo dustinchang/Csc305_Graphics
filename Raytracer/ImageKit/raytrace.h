@@ -26,8 +26,8 @@ void SetColor(Pixel & px, Vector3 CalculatedColor)
 
 Vector3 AmbientColour(20, 20, 20);
 Vector3 DiffuseColour(200, 200, 200);//Might be too high
-Vector3 BackgroundColor(173,255,47);
-Vector3 Light(-128, -800, -200);
+Vector3 BackgroundColor(25,25,25);
+Vector3 Light(-128, -500, -128);
 //******WARNING: THIS CODE MAKES EVERYTHING IN THE SCENE LOOKS THE SAME****
 //SIMPLY COPY THIS CODE DOES NOT MEET THE REQUIREMENT FOR ASSIGNMENT 1
 //YOU ARE EXPECTED TO HAVE DIFFERENT SURFACE MATERIALS FOR DIFFERENT OBJECTS
@@ -54,18 +54,21 @@ void RayTraceSphere(Image * pImage)
     std::vector<Object *> pObjectList;
     Floor floor;
     Plane plane(Vector3(0, 850, 0), Vector3(0, -3, 1), Vector3(102, 205, 170));
-    Sphere sphere(Vector3(256, 256, 450), //center
-                  250, Vector3(235, 69, 30));//radius
+    Sphere sphere(Vector3(450, 384, 450), //center
+                  250,//radius
+                  Vector3(220, 20, 60));//Color
+    Sphere sphere2(Vector3(50, 250, 375), 150, Vector3(0, 153, 153));
     //pObjectList.push_back(&floor);
     //pObjectList.push_back(&plane);
     pObjectList.push_back(&sphere);
+    pObjectList.push_back(&sphere2);
     pObjectList.push_back(&plane);
 
     Vector3 Camera(256, 256, -200);	//Was z=-400
 
     for (int i = 0; i < 512; ++ i)
         for (int j = 0; j < 512; ++j)
-		{
+        {
             //Set up the ray we're tracing: R = O + tD;
             Pixel px;
             Vector3 PixelPosition((float)i, (float)j, 0);
@@ -121,7 +124,7 @@ void RayTraceSphere(Image * pImage)
                   bool objectIntersects = pObjectList[l]->Intersect(Intersection2, Normalize(Minus(Light, Intersection2)), &v1, &v2, &v3);
 
                     if(objectIntersects) {
-                        colors = Minus(colors, Vector3(50, 50, 50));//20, 147);
+                        colors = Minus(colors, Vector3(70, 70, 70));//20, 147);
                     }
                 }//End of Shadow for loop
 
