@@ -56,8 +56,8 @@ void RayTraceSphere(Image * pImage)
     Plane plane(Vector3(0, 775, 0), Vector3(0, -3, 1), Vector3(102, 205, 170));
     Plane plane2(Vector3(755, 0, 0), Vector3(-3, 0, 1), Vector3(205, 205, 0));
     Plane plane3(Vector3(-755, 0, 0), Vector3(3, 0, 1), Vector3(205, 205, 0));
-    Sphere sphere(Vector3(500, 384, 250), //center
-                  100,//radius
+    Sphere sphere(Vector3(500, 384, 200), //center
+                  90,//radius
                   Vector3(220, 20, 60));//Color
     Sphere sphere2(Vector3(50, 250, 375), 150, Vector3(0, 153, 153));
     Sphere sphere3(Vector3(0, 425, 165), 75, Vector3(255, 153, 153));
