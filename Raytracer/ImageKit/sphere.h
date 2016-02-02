@@ -14,12 +14,14 @@ public:
     virtual bool Intersect(Vector3 Origin, Vector3 Direction,
                            float *t_out, Vector3 *normal_out, Vector3 *col_out)
     {
+        //Formula for ray-sphere intersection
         Vector3 EO = Minus(Center, Origin);
         float v = DotProduct(EO, Direction);
         float RadiusSquare = Radius * Radius;
         float EO_Square = DotProduct(EO, EO);
         float discriminant = RadiusSquare - (EO_Square - v * v);
 
+        //Determine if there is a t
         float t = -1;
         if (discriminant > 0)
         {
@@ -27,6 +29,7 @@ public:
             t = v - d;
         }
 
+        //Determine the intersection points to send out and back to raytrace
         if (t > 0) {
             *t_out = t;
             Vector3 IntersectionPoint = MultiplyScalar(Direction, t);

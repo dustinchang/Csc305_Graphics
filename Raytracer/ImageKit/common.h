@@ -22,12 +22,3 @@ Vector3 Normalize(Vector3 a)
     length = sqrt(length);
     return Vector3(a.x / length, a.y / length, a.z / length);
 }
-Vector3 CrossProduct(Vector3 a, Vector3 b) {return Vector3( (a.y*b.z)-(a.z*b.y), (a.z*b.x)-(a.x*b.z), (a.x*b.y)-(a.y*b.x) );}
-bool sameSign(float a, float b) {
-  if(a * b > 0) {
-    return true;
-  }
-  else {
-    return false;
-  }
-}

@@ -14,6 +14,7 @@ public:
     virtual bool Intersect(Vector3 Origin, Vector3 Direction,
                            float * t_out, Vector3 * normal_out, Vector3 *col_out)
     {
+        //Formula for acquire t of a plane
         float t = DotProduct(norms, Minus(point, Origin)) / DotProduct(norms, Direction);
 
         if(t > 0.0001) {

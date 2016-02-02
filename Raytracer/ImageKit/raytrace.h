@@ -3,7 +3,6 @@
 #include "Image.h"
 #include <vector>
 #include "sphere.h"
-#include "floor.h"
 #include "plane.h"
 #include <iostream>
 
@@ -52,23 +51,16 @@ void RayTraceSphere(Image * pImage)
 {
     //Creation of objects
     std::vector<Object *> pObjectList;
-    Floor floor;
     Plane plane(Vector3(0, 775, 0), Vector3(0, -3, 1), Vector3(102, 205, 170));
-    Plane plane2(Vector3(755, 0, 0), Vector3(-3, 0, 1), Vector3(205, 205, 0));
-    Plane plane3(Vector3(-755, 0, 0), Vector3(3, 0, 1), Vector3(205, 205, 0));
     Sphere sphere(Vector3(500, 384, 200), //center
                   90,//radius
                   Vector3(220, 20, 60));//Color
     Sphere sphere2(Vector3(50, 250, 375), 150, Vector3(0, 153, 153));
     Sphere sphere3(Vector3(0, 425, 165), 75, Vector3(255, 153, 153));
-    //pObjectList.push_back(&floor);
-    //pObjectList.push_back(&plane);
     pObjectList.push_back(&sphere);
     pObjectList.push_back(&sphere2);
     pObjectList.push_back(&sphere3);
     pObjectList.push_back(&plane);
-    //pObjectList.push_back(&plane2);
-    //pObjectList.push_back(&plane3);
 
     Vector3 Camera(256, 256, -200);	//Was z=-400
 
@@ -94,8 +86,8 @@ void RayTraceSphere(Image * pImage)
                 float t;
                 Vector3 normal;
                 Vector3 col;
-                bool DoesIntersect = pObjectList[k]->Intersect(Camera, Direction,
-                                                             &t, &normal, &col);
+                bool DoesIntersect = pObjectList[k]->Intersect(Camera, Direction, &t, &normal, &col);
+                //Determine the mine t if an intersection
                 if (DoesIntersect)
                 {
                     HasIntersection = true;
@@ -135,7 +127,7 @@ void RayTraceSphere(Image * pImage)
 			      {
 				      SetColor(px, BackgroundColor);
 			      }
-            //Testing for multiple shadows from different lights
+            //Multiple shadows from different lights
             if (HasIntersection) {
               Vector3 Intersection = MultiplyScalar(Direction, t_min);
               Intersection = Add(Intersection, Camera);
