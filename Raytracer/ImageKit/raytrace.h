@@ -47,6 +47,31 @@ Pixel DiffuseShade(Vector3 Surface, Vector3 Normal, Vector3 colors)
     return shade;
 }
 
+//If there is an Intersection set appropriate calculations, whether there is no intersection, an intersection, or an intersection that creates a shadow
+bool ifIntersection(Vector3 *Intersection, bool HasIntersection, Vector3 Direction, float t_min, Vector3 Camera, Vector3 Light, std::vector<Object *>& pObjectList, Vector3 *colors) {
+  //Multiple shadows from different lights
+  if (HasIntersection) {
+    *Intersection = MultiplyScalar(Direction, t_min);
+    *Intersection = Add(*Intersection, Camera);
+    Vector3 Intersection2 = Add(*Intersection, Camera);
+    Vector3 Light_Direction = Normalize(Minus(Light,Intersection2));
+    //Shadow feelers
+    for(int l = 0; l < pObjectList.size(); ++ l) {
+      float v1;
+      Vector3 v2;
+      Vector3 v3;
+      bool objectIntersects = pObjectList[l]->Intersect(Intersection2, Light_Direction, &v1, &v2, &v3);
+      if(objectIntersects) {
+          *colors = Minus(*colors, Vector3(70, 70, 70));
+      }
+    }//End of Shadow for loop
+    return true;
+  } else {
+    return false;
+  }
+}
+
+//Main raytrace function
 void RayTraceSphere(Image * pImage)
 {
     //Creation of objects
@@ -78,7 +103,6 @@ void RayTraceSphere(Image * pImage)
             Vector3 Normal_min;
             Vector3 colors;
             bool HasIntersection = false;
-            bool objHasIntersection = false;
 
             //Intersect with the list of objects
             for (int k = 0; k < pObjectList.size(); ++ k)
@@ -100,54 +124,21 @@ void RayTraceSphere(Image * pImage)
                 }
             }
 
-            if (HasIntersection)
-            {
-                Vector3 Intersection = MultiplyScalar(Direction, t_min);
-                Intersection = Add(Intersection, Camera);
-
-                Vector3 Intersection2 = Add(Intersection, Camera);
-                Vector3 Light_Direction = Normalize(Minus(Light,Intersection2));
-
-                //Shadow feelers here
-                for(int l = 0; l < pObjectList.size(); ++ l) {
-                  //Placement holders so as to not overight previous t, norm, & col
-                  float v1;
-                  Vector3 v2;
-                  Vector3 v3;
-                  bool objectIntersects = pObjectList[l]->Intersect(Intersection2, Light_Direction, &v1, &v2, &v3);
-
-                  if(objectIntersects) {
-                      colors = Minus(colors, Vector3(70, 70, 70));//20, 147);
-                  }
-                }//End of Shadow for loop
-
-                px = DiffuseShade(Intersection, Normal_min, colors);
-            }
-			      else //No Intersection, set background colour
-			      {
-				      SetColor(px, BackgroundColor);
-			      }
             //Multiple shadows from different lights
-            if (HasIntersection) {
-              Vector3 Intersection = MultiplyScalar(Direction, t_min);
-              Intersection = Add(Intersection, Camera);
-              Vector3 Intersection2 = Add(Intersection, Camera);
-              Vector3 Light_Direction = Normalize(Minus(Light2,Intersection2));
-              //Shadow feelers
-              for(int l = 0; l < pObjectList.size(); ++ l) {
-                float v1;
-                Vector3 v2;
-                Vector3 v3;
-                bool objectIntersects = pObjectList[l]->Intersect(Intersection2, Light_Direction, &v1, &v2, &v3);
-                if(objectIntersects) {
-                    colors = Minus(colors, Vector3(70, 70, 70));//20, 147);
-                }
-              }//End of Shadow for loop
+            Vector3 Intersection;
+            //1st Light
+            if(ifIntersection(&Intersection, HasIntersection, Direction, t_min, Camera, Light, pObjectList, &colors)) {
               px = DiffuseShade(Intersection, Normal_min, colors);
-              //End of 2nd if(HasIntersection)
             } else {
               SetColor(px, BackgroundColor);
             }
+            //2nd Light
+            if(ifIntersection(&Intersection, HasIntersection, Direction, t_min, Camera, Light2, pObjectList, &colors)) {
+              px = DiffuseShade(Intersection, Normal_min, colors);
+            } else {
+              SetColor(px, BackgroundColor);
+            }
+
       //Set the pixel image
 			(*pImage)(i, j) = px;
 		}
