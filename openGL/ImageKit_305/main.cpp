@@ -22,6 +22,8 @@ Canvas canvas;
 //n = dist to near plane
 //f = dist to far plane
 Matrix4d perspecMat;
+Matrix4d Mvrot;
+Matrix4d Mv;
 //Left Bottom Near (lbn)
 Vector3d lbn;
 Vector3d rbn;
@@ -32,6 +34,14 @@ Vector3d rbf;
 Vector3d ltf;
 Vector3d rtf;
 
+Vector3d eyePos;
+Vector3d gaze;
+Vector3d viewUp;
+
+Vector3d W;
+Vector3d U;
+Vector3d V;
+Vector3d txW;
 
 void InitializeGL()
 {
@@ -63,14 +73,22 @@ void KeyPress(char keychar)
   if(keychar == 'R') rotateCW = !rotateCW;
 }
 
+void DrawCube(float x_center, float y_center, float z_center) {
+  //canvas.AddLine(x_center + lbn(0), y_center + lbn(1), z_center + lbn(2), x_center + rbn(0), y_center + rbn(1), z_center + rbn(2));
+  //canvas.AddLine(x_center + lbn(0), y_center + lbn(1), z_center + lbn(2), x_center + ltn(0), y_center + ltn(1), z_center + ltn(2));
+  //canvas.AddLine(x_center + lbn(0), y_center + lbn(1), z_center + lbn(2), x_center + lbf(0), y_center + lbf(1), z_center + lbf(2));
+
+  //canvas.AddLine(0, 0, 0, 0.3, 0, 0);
+  //canvas.AddLine(0, 0, 0, 0, 0.5, 0);
+}
+
 void OnPaint()
 {
   canvas.Clear(); //Clears canvas
-  //Now actually going to draw square
-    for(int i = 0; i < 4; ++ i) {
-      //Vector2 startPoint;
+  //if (leftButtonPressed == true) {
+    DrawCube(0,0,0);//vppos_x, vppos_y);
+  //}
 
-    }
 }
 
 void OnTimer()
@@ -83,21 +101,45 @@ void OnTimer()
 
 int main(int, char **){
   //Create the Perspective Matrix
+  int n = 1;
+  int f = 2;
   perspecMat << 1, 0, 0, 0,
                 0, 1, 0, 0,
-                0, 1, 0, 0,  //0, 0, (n+f)/n, -f,
-                0, 1, 0, 0;  //0, 0, (1/n), 0;
+                0, 0, (n+f)/n, -f,
+                0, 0, (1/n), 0;
 
-  lbn << 0.5, 0.5, 0.5;
+  //Vertices
+  lbn << -0.5, 0.5, 0.5;
   rbn << 0.5, 0.5, 0.5;
-  ltn << 0.5, 0.5, 0.5;
-  rtn << 0.5, 0.5, 0.5;
-  lbf << 0.5, 0.5, 0.5;
-  rbf << 0.5, 0.5, 0.5;
-  ltf << 0.5, 0.5, 0.5;
-  rtf << 0.5, 0.5, 0.5;
-  cout << "lbn=" << lbn << endl;
-  cout << "perspecMat=" << perspecMat << endl;
+  ltn << -0.5, -0.5, 0.5;
+  rtn << 0.5, -0.5, 0.5;
+  lbf << -0.7, 0.7, -0.7;
+  rbf << 0.7, 0.7, -0.7;
+  ltf << -0.7, -0.7, -0.7;
+  rtf << 0.7, -0.7, -0.7;
+  //View positions
+  eyePos << 0, 0, 0;
+  gaze << 0, 0, 1;
+  viewUp << 0, 1, 0;
+  //Setup W, U, and V Vectors
+  W = gaze / sqrt(pow(gaze(0), 2) + pow(gaze(1), 2) + pow(gaze(2), 2));
+  txW = viewUp.cross(W);
+  U = txW / sqrt(pow(txW(0), 2) + pow(txW(1), 2) + pow(txW(2), 2));
+  V = W.cross(U);
+
+  Mvrot << U(0), U(1), U(2), 0,
+          V(0), V(1), V(2), 0,
+          W(0), W(1), W(2), 0,
+          0, 0, 0, 1;
+  Mv = Mvrot*perspecMat;
+
+
+  cout << "W=" << W << endl;
+  cout << "txW=" << txW << endl;
+  cout << "U=" << U << endl;
+  cout << "V=" << V << endl;
+  cout << "Mvrot=" << Mvrot << endl;
+  cout << "Mv=" << Mv << endl;
 
     //Link the call backs
     canvas.SetMouseMove(MouseMove);
