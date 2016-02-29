@@ -22,26 +22,16 @@ Canvas canvas;
 //n = dist to near plane
 //f = dist to far plane
 Matrix4d perspecMat;
+//Left Bottom Near (lbn)
+Vector3d lbn;
+Vector3d rbn;
+Vector3d ltn;
+Vector3d rtn;
+Vector3d lbf;
+Vector3d rbf;
+Vector3d ltf;
+Vector3d rtf;
 
-
-struct Vector2 {
-  float x, y;
-  Vector2(float x_in, float y_in) {
-    x = x_in; y = y_in;
-  }
-  Vector2() {x = y = 0;}
-};
-
-struct Vector3 {
-  float x, y, z;
-  Vector3(float x_in, float y_in, float z_in) {
-    x = x_in; y = y_in; z = z_in;
-  }
-  Vector3() {x = y = z =0;}
-};
-
-//To create square now
-std::vector<Vector2> SquareVertices;
 
 void InitializeGL()
 {
@@ -76,23 +66,10 @@ void KeyPress(char keychar)
 void OnPaint()
 {
   canvas.Clear(); //Clears canvas
-
   //Now actually going to draw square
     for(int i = 0; i < 4; ++ i) {
-      Vector2 startPoint;
-      //If do nothing at all, but we want to rotate that point so we add all this formula from tutorial/textbook
-      //cout << "rotateAngle=" << rotateAngle << endl;
-      startPoint.x = SquareVertices[i].x * cos(rotateAngle) - SquareVertices[i].y * sin(rotateAngle); //Change to -1 if you want to expand
-      //cout << "rotateAngle =" << rotateAngle << endl;
-      startPoint.y = SquareVertices[i].x * sin(rotateAngle) + SquareVertices[i].y * cos(rotateAngle);
-      Vector2 endPoint;
-      endPoint.x = SquareVertices[i + 1].x * cos(rotateAngle) - SquareVertices[i + 1].y * sin(rotateAngle);
-      endPoint.y = SquareVertices[i + 1].x * sin(rotateAngle) + SquareVertices[i + 1].y * cos(rotateAngle);
-      //cout << "startPoint x =" << startPoint.x << endl;
-      //cout << "startPoint y =" << startPoint.y << endl;
-      //cout << "endPoint x =" << endPoint.x << endl;
-      //cout << "endPoint y =" << endPoint.y << endl;
-      canvas.AddLine(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+      //Vector2 startPoint;
+
     }
 }
 
@@ -105,17 +82,22 @@ void OnTimer()
 }
 
 int main(int, char **){
-    perspecMat <<   1, 0, 0, 0,
-              0, 1, 0, 0,
-              0, 1, 0, 0,  //0, 0, (n+f)/n, -f,
-              0, 1, 0, 0;  //0, 0, (1/n), 0;
+  //Create the Perspective Matrix
+  perspecMat << 1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 1, 0, 0,  //0, 0, (n+f)/n, -f,
+                0, 1, 0, 0;  //0, 0, (1/n), 0;
 
-  //Init of square coordinate
-  SquareVertices.push_back(Vector2(-0.5, -0.5));
-  SquareVertices.push_back(Vector2(0.5, -0.5));
-  SquareVertices.push_back(Vector2(0.5, 0.5));
-  SquareVertices.push_back(Vector2(-0.5, 0.5));
-  SquareVertices.push_back(Vector2(-0.5, -0.5));
+  lbn << 0.5, 0.5, 0.5;
+  rbn << 0.5, 0.5, 0.5;
+  ltn << 0.5, 0.5, 0.5;
+  rtn << 0.5, 0.5, 0.5;
+  lbf << 0.5, 0.5, 0.5;
+  rbf << 0.5, 0.5, 0.5;
+  ltf << 0.5, 0.5, 0.5;
+  rtf << 0.5, 0.5, 0.5;
+  cout << "lbn=" << lbn << endl;
+  cout << "perspecMat=" << perspecMat << endl;
 
     //Link the call backs
     canvas.SetMouseMove(MouseMove);
