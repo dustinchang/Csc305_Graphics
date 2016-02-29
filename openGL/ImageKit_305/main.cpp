@@ -24,15 +24,17 @@ Canvas canvas;
 Matrix4d perspecMat;
 Matrix4d Mvrot;
 Matrix4d Mv;
+Matrix4d Mvp;
+Matrix4d Morth;
 //Left Bottom Near (lbn)
-Vector3d lbn;
-Vector3d rbn;
-Vector3d ltn;
-Vector3d rtn;
-Vector3d lbf;
-Vector3d rbf;
-Vector3d ltf;
-Vector3d rtf;
+Vector4d lbn;
+Vector4d rbn;
+Vector4d ltn;
+Vector4d rtn;
+Vector4d lbf;
+Vector4d rbf;
+Vector4d ltf;
+Vector4d rtf;
 
 Vector3d eyePos;
 Vector3d gaze;
@@ -42,6 +44,8 @@ Vector3d W;
 Vector3d U;
 Vector3d V;
 Vector3d txW;
+
+std::vector<Vector4d> Vertices4d;
 
 void InitializeGL()
 {
@@ -86,8 +90,11 @@ void OnPaint()
 {
   canvas.Clear(); //Clears canvas
   //if (leftButtonPressed == true) {
-    DrawCube(0,0,0);//vppos_x, vppos_y);
+    //DrawCube(0,0,0);//vppos_x, vppos_y);
   //}
+  for(int i=0; i < 16; i+=2) {
+    canvas.AddLine(Vertices4d[i](0), Vertices4d[i](1), Vertices4d[i+1](0), Vertices4d[i+1](1));
+  }
 
 }
 
@@ -109,14 +116,14 @@ int main(int, char **){
                 0, 0, (1/n), 0;
 
   //Vertices
-  lbn << -0.5, 0.5, 0.5;
-  rbn << 0.5, 0.5, 0.5;
-  ltn << -0.5, -0.5, 0.5;
-  rtn << 0.5, -0.5, 0.5;
-  lbf << -0.7, 0.7, -0.7;
-  rbf << 0.7, 0.7, -0.7;
-  ltf << -0.7, -0.7, -0.7;
-  rtf << 0.7, -0.7, -0.7;
+  lbn << -0.5, 0.5, 0.5, 1;
+  rbn << 0.5, 0.5, 0.5, 1;
+  ltn << -0.5, -0.5, 0.5, 1;
+  rtn << 0.5, -0.5, 0.5, 1;
+  lbf << -0.7, 0.7, -0.7, 1;
+  rbf << 0.7, 0.7, -0.7, 1;
+  ltf << -0.7, -0.7, -0.7, 1;
+  rtf << 0.7, -0.7, -0.7, 1;
   //View positions
   eyePos << 0, 0, 0;
   gaze << 0, 0, 1;
@@ -140,6 +147,44 @@ int main(int, char **){
   cout << "V=" << V << endl;
   cout << "Mvrot=" << Mvrot << endl;
   cout << "Mv=" << Mv << endl;
+
+  //Vertices4d.push_back(lbn, rbn);
+  //Vertices4d.push_back(lbn, ltn);
+  //Vertices4d.push_back(lbn, lbf);
+  //Vertices4d.push_back(rbn, rtn);
+  //Vertices4d.push_back(rbn, rbf);
+  //Vertices4d.push_back(ltn, rtn);
+  //Vertices4d.push_back(ltn, ltf);
+  //Vertices4d.push_back(rtn, rtf);
+  //Vertices4d.push_back(lbf, rbf);
+  //Vertices4d.push_back(lbf, ltf);
+  //Vertices4d.push_back(rbf, rtf);
+  //Vertices4d.push_back(ltf, rtf);
+  Vertices4d.push_back(lbn);
+  Vertices4d.push_back(rbn);
+  Vertices4d.push_back(lbn);
+  Vertices4d.push_back(ltn);
+  Vertices4d.push_back(lbn);
+  Vertices4d.push_back(lbf);
+  Vertices4d.push_back(rbn);
+  Vertices4d.push_back(rtn);
+  Vertices4d.push_back(rbn);
+  Vertices4d.push_back(rbf);
+  Vertices4d.push_back(ltn);
+  Vertices4d.push_back(rtn);
+  Vertices4d.push_back(ltn);
+  Vertices4d.push_back(ltf);
+  Vertices4d.push_back(rtn);
+  Vertices4d.push_back(rtf);
+  Vertices4d.push_back(lbf);
+  Vertices4d.push_back(rbf);
+  Vertices4d.push_back(lbf);
+  Vertices4d.push_back(ltf);
+  Vertices4d.push_back(rbf);
+  Vertices4d.push_back(rtf);
+  Vertices4d.push_back(ltf);
+  Vertices4d.push_back(rtf);
+  cout << "hi" << endl;
 
     //Link the call backs
     canvas.SetMouseMove(MouseMove);
