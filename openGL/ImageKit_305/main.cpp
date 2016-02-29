@@ -15,6 +15,7 @@ bool leftButtonPressed = false;
 bool rotateCW = true; //Whether we're rotating clockwise or not
 float rotateAngle = 0;
 float rotateSpeed = 0.001;    //was 0.2
+int rot_val = 0;
 
 Canvas canvas;
 
@@ -93,7 +94,7 @@ void OnPaint()
     //DrawCube(0,0,0);//vppos_x, vppos_y);
   //}
   for(int i=0; i < 24; i+=2) {
-      cout << "i=" << i << endl;
+    cout << "i=" << i << endl;
     canvas.AddLine(Vertices4d[i](0), Vertices4d[i](1), Vertices4d[i+1](0), Vertices4d[i+1](1));
     //canvas.AddLine(0,0,.8,0); //Goes right
     //canvas.AddLine(0,0,0,.8); //Goes up
@@ -106,6 +107,7 @@ void OnTimer()
   //Now create animation
   if(rotateCW) rotateAngle -= rotateSpeed;
   else rotateAngle += rotateSpeed;
+  rot_val++;
 
 }
 
@@ -129,7 +131,7 @@ int main(int, char **){
   rtf << 0.7, -0.7, -0.7, 1;//rtf << 0.7, -0.7, -0.7, 1;
   //View positions
   eyePos << 0, 0, 0;
-  gaze << 0, 0, 1;
+  gaze << sin(rot_val)*2, 0, cos(rot_val)*2; //Work on rotation https://www.youtube.com/watch?v=e3sc72ZDDpo
   viewUp << 0, 1, 0;
   //Setup W, U, and V Vectors
   W = gaze / sqrt(pow(gaze(0), 2) + pow(gaze(1), 2) + pow(gaze(2), 2));
