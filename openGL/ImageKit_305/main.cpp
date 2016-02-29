@@ -92,8 +92,11 @@ void OnPaint()
   //if (leftButtonPressed == true) {
     //DrawCube(0,0,0);//vppos_x, vppos_y);
   //}
-  for(int i=0; i < 16; i+=2) {
+  for(int i=0; i < 24; i+=2) {
+      cout << "i=" << i << endl;
     canvas.AddLine(Vertices4d[i](0), Vertices4d[i](1), Vertices4d[i+1](0), Vertices4d[i+1](1));
+    //canvas.AddLine(0,0,.8,0); //Goes right
+    //canvas.AddLine(0,0,0,.8); //Goes up
   }
 
 }
@@ -120,10 +123,10 @@ int main(int, char **){
   rbn << 0.5, 0.5, 0.5, 1;
   ltn << -0.5, -0.5, 0.5, 1;
   rtn << 0.5, -0.5, 0.5, 1;
-  lbf << -0.7, 0.7, -0.7, 1;
-  rbf << 0.7, 0.7, -0.7, 1;
-  ltf << -0.7, -0.7, -0.7, 1;
-  rtf << 0.7, -0.7, -0.7, 1;
+  lbf << -0.3, 0.3, -0.7, 1;//lbf << -0.7, 0.7, -0.7, 1;
+  rbf << 0.7, 0.3, -0.7, 1;//rbf << 0.7, 0.7, -0.7, 1;
+  ltf << -0.3, -0.7, -0.7, 1;//ltf << -0.7, -0.7, -0.7, 1;
+  rtf << 0.7, -0.7, -0.7, 1;//rtf << 0.7, -0.7, -0.7, 1;
   //View positions
   eyePos << 0, 0, 0;
   gaze << 0, 0, 1;
