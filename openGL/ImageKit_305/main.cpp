@@ -14,8 +14,8 @@ bool leftButtonPressed = false;
 //Rotation
 bool rotateCW = true; //Whether we're rotating clockwise or not
 float rotateAngle = 0;
-float rotateSpeed = 0.001;    //was 0.2
-int rot_val = 0;
+float rotateSpeed = 0.02;    //was 0.2
+float rot_val = 0;
 
 Canvas canvas;
 
@@ -139,7 +139,7 @@ void OnTimer()
 
 
 
-  rot_val ++;
+  rot_val += rotateSpeed;
 
 }
 
@@ -153,14 +153,14 @@ int main(int, char **){
         0, 0, (n+f)/n, -f,
         0, 0, (1/n), 0;
   //Vertices
-  lbn << -0.5, 0.5, 0.5, 1;
-  rbn << 0.5, 0.5, 0.5, 1;
-  ltn << -0.5, -0.5, 0.5, 1;
-  rtn << 0.5, -0.5, 0.5, 1;
-  lbf << -0.3, 0.3, -0.7, 1;//lbf << -0.7, 0.7, -0.7, 1;
-  rbf << 0.7, 0.3, -0.7, 1;//rbf << 0.7, 0.7, -0.7, 1;
-  ltf << -0.3, -0.7, -0.7, 1;//ltf << -0.7, -0.7, -0.7, 1;
-  rtf << 0.7, -0.7, -0.7, 1;//rtf << 0.7, -0.7, -0.7, 1;
+  lbn << -0.5, 0.5, 0.25, 1;
+  rbn << 0.5, 0.5, 0.25, 1;
+  ltn << -0.5, -0.5, 0.25, 1;
+  rtn << 0.5, -0.5, 0.25, 1;
+  lbf << -0.5, 0.5, -0.25, 1;//lbf << -0.7, 0.7, -0.7, 1;
+  rbf << 0.5, 0.5, -0.25, 1;//rbf << 0.7, 0.7, -0.7, 1;
+  ltf << -0.5, -0.5, -0.25, 1;//ltf << -0.7, -0.7, -0.7, 1;
+  rtf << 0.5, -0.5, -0.25, 1;//rtf << 0.7, -0.7, -0.7, 1;
   //View positions
   eyePos << 0, 0, -2;
 
