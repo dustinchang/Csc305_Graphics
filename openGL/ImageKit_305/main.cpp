@@ -22,11 +22,15 @@ Canvas canvas;
 //Use Eigen to produce the Perspective Matrix
 //n = dist to near plane
 //f = dist to far plane
-Matrix4d perspecMat;
+Matrix4d Mp;
 Matrix4d Mvrot;
 Matrix4d Mv;
 Matrix4d Mvp;
 Matrix4d Morth;
+Matrix4d xyz_1s;
+Matrix4d M;
+Vector4d p;
+Vector4d q;
 //Left Bottom Near (lbn)
 Vector4d lbn;
 Vector4d rbn;
@@ -94,8 +98,17 @@ void OnPaint()
     //DrawCube(0,0,0);//vppos_x, vppos_y);
   //}
   for(int i=0; i < 24; i+=2) {
-    cout << "i=" << i << endl;
-    canvas.AddLine(Vertices4d[i](0), Vertices4d[i](1), Vertices4d[i+1](0), Vertices4d[i+1](1));
+    p = M*Vertices4d[i];
+    q = M*Vertices4d[i+1];
+    cout << "M=" << M << endl;
+    cout << "p=" << p << endl;
+    cout << "q=" << q << endl;
+    cout << "Vertices4d[i]=" << Vertices4d[i] << endl;
+    cout << "Vertices4d[i+1]=" << Vertices4d[i+1] << endl;
+
+    cout << "p(0)=" << p(0) << endl;
+    //canvas.AddLine(Vertices4d[i](0), Vertices4d[i](1), Vertices4d[i+1](0), Vertices4d[i+1](1));
+    canvas.AddLine(p(0), p(1), q(0), q(1));
     //canvas.AddLine(0,0,.8,0); //Goes right
     //canvas.AddLine(0,0,0,.8); //Goes up
   }
@@ -107,32 +120,9 @@ void OnTimer()
   //Now create animation
   if(rotateCW) rotateAngle -= rotateSpeed;
   else rotateAngle += rotateSpeed;
-  rot_val++;
-
-}
-
-int main(int, char **){
-  //Create the Perspective Matrix
-  int n = 1;
-  int f = 2;
-  perspecMat << 1, 0, 0, 0,
-                0, 1, 0, 0,
-                0, 0, (n+f)/n, -f,
-                0, 0, (1/n), 0;
-
-  //Vertices
-  lbn << -0.5, 0.5, 0.5, 1;
-  rbn << 0.5, 0.5, 0.5, 1;
-  ltn << -0.5, -0.5, 0.5, 1;
-  rtn << 0.5, -0.5, 0.5, 1;
-  lbf << -0.3, 0.3, -0.7, 1;//lbf << -0.7, 0.7, -0.7, 1;
-  rbf << 0.7, 0.3, -0.7, 1;//rbf << 0.7, 0.7, -0.7, 1;
-  ltf << -0.3, -0.7, -0.7, 1;//ltf << -0.7, -0.7, -0.7, 1;
-  rtf << 0.7, -0.7, -0.7, 1;//rtf << 0.7, -0.7, -0.7, 1;
-  //View positions
-  eyePos << 0, 0, 0;
+  //Was in main
   gaze << sin(rot_val)*2, 0, cos(rot_val)*2; //Work on rotation https://www.youtube.com/watch?v=e3sc72ZDDpo
-  viewUp << 0, 1, 0;
+
   //Setup W, U, and V Vectors
   W = gaze / sqrt(pow(gaze(0), 2) + pow(gaze(1), 2) + pow(gaze(2), 2));
   txW = viewUp.cross(W);
@@ -143,15 +133,55 @@ int main(int, char **){
           V(0), V(1), V(2), 0,
           W(0), W(1), W(2), 0,
           0, 0, 0, 1;
-  Mv = Mvrot*perspecMat;
+  Mv = Mvrot*xyz_1s; //*Mp;
+  //Mp =
+  M = Mv*Mp;
 
 
-  cout << "W=" << W << endl;
-  cout << "txW=" << txW << endl;
-  cout << "U=" << U << endl;
-  cout << "V=" << V << endl;
-  cout << "Mvrot=" << Mvrot << endl;
-  cout << "Mv=" << Mv << endl;
+
+  rot_val ++;
+
+}
+
+int main(int, char **){
+  //Create the Perspective Matrix
+  int n = 1;
+  int f = 2;
+  rot_val = 0;
+  Mp << 1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, (n+f)/n, -f,
+        0, 0, (1/n), 0;
+  //Vertices
+  lbn << -0.5, 0.5, 0.5, 1;
+  rbn << 0.5, 0.5, 0.5, 1;
+  ltn << -0.5, -0.5, 0.5, 1;
+  rtn << 0.5, -0.5, 0.5, 1;
+  lbf << -0.3, 0.3, -0.7, 1;//lbf << -0.7, 0.7, -0.7, 1;
+  rbf << 0.7, 0.3, -0.7, 1;//rbf << 0.7, 0.7, -0.7, 1;
+  ltf << -0.3, -0.7, -0.7, 1;//ltf << -0.7, -0.7, -0.7, 1;
+  rtf << 0.7, -0.7, -0.7, 1;//rtf << 0.7, -0.7, -0.7, 1;
+  //View positions
+  eyePos << 0, 0, -2;
+
+  viewUp << 0, 1, 0;
+  //Setup for Mv
+  xyz_1s << 1, 0, 0, -eyePos(0),
+            0, 1, 0, -eyePos(1),
+            0, 0, 1, -eyePos(2),
+            0, 0, 0, 1;
+
+
+
+
+
+  //cout << "W=" << W << endl;
+  //cout << "txW=" << txW << endl;
+  //cout << "U=" << U << endl;
+  //cout << "V=" << V << endl;
+  //cout << "Mvrot=" << Mvrot << endl;
+  //cout << "Mv=" << Mv << endl;
+  //cout << "M=" << M << endl;
 
   //Vertices4d.push_back(lbn, rbn);
   //Vertices4d.push_back(lbn, ltn);
@@ -189,7 +219,6 @@ int main(int, char **){
   Vertices4d.push_back(rtf);
   Vertices4d.push_back(ltf);
   Vertices4d.push_back(rtf);
-  cout << "hi" << endl;
 
     //Link the call backs
     canvas.SetMouseMove(MouseMove);
