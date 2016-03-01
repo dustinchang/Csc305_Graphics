@@ -14,7 +14,7 @@ bool leftButtonPressed = false;
 //Rotation
 bool rotateCW = true; //Whether we're rotating clockwise or not
 float rotateAngle = 0;
-float rotateSpeed = 0.02;    //was 0.2
+float rotateSpeed = 0.07;    //was 0.2
 float rot_val = 0;
 
 Canvas canvas;
@@ -25,10 +25,14 @@ Canvas canvas;
 Matrix4d Mp;
 Matrix4d Mvrot;
 Matrix4d Mv;
+Matrix4d Mo;
 Matrix4d Mvp;
 Matrix4d Morth;
 Matrix4d xyz_1s;
 Matrix4d M;
+
+Vector4d homogenous;
+Vector4d MpHomo;
 Vector4d p;
 Vector4d q;
 //Left Bottom Near (lbn)
@@ -49,6 +53,9 @@ Vector3d W;
 Vector3d U;
 Vector3d V;
 Vector3d txW;
+
+float n;
+float f;
 
 std::vector<Vector4d> Vertices4d;
 
@@ -100,13 +107,12 @@ void OnPaint()
   for(int i=0; i < 24; i+=2) {
     p = M*Vertices4d[i];
     q = M*Vertices4d[i+1];
-    cout << "M=" << M << endl;
-    cout << "p=" << p << endl;
-    cout << "q=" << q << endl;
-    cout << "Vertices4d[i]=" << Vertices4d[i] << endl;
-    cout << "Vertices4d[i+1]=" << Vertices4d[i+1] << endl;
+    // cout << "M=" << M << endl;
+    // cout << "p=" << p << endl;
+    // cout << "q=" << q << endl;
+    // cout << "Vertices4d[i]=" << Vertices4d[i] << endl;
+    // cout << "Vertices4d[i+1]=" << Vertices4d[i+1] << endl;
 
-    cout << "p(0)=" << p(0) << endl;
     //canvas.AddLine(Vertices4d[i](0), Vertices4d[i](1), Vertices4d[i+1](0), Vertices4d[i+1](1));
     canvas.AddLine(p(0), p(1), q(0), q(1));
     //canvas.AddLine(0,0,.8,0); //Goes right
@@ -121,7 +127,7 @@ void OnTimer()
   if(rotateCW) rotateAngle -= rotateSpeed;
   else rotateAngle += rotateSpeed;
   //Was in main
-  gaze << sin(rot_val)*2, 0, cos(rot_val)*2; //Work on rotation https://www.youtube.com/watch?v=e3sc72ZDDpo
+  gaze << sin(rot_val), 0, cos(rot_val);
 
   //Setup W, U, and V Vectors
   W = gaze / sqrt(pow(gaze(0), 2) + pow(gaze(1), 2) + pow(gaze(2), 2));
@@ -134,35 +140,41 @@ void OnTimer()
           W(0), W(1), W(2), 0,
           0, 0, 0, 1;
   Mv = Mvrot*xyz_1s; //*Mp;
-  //Mp =
-  M = Mv*Mp;
+
+  homogenous << 0, 0, 0, 1;
+  MpHomo = Mp*homogenous;
+  cout << "MpHomo1=" << MpHomo << endl;
+  MpHomo /= (0/n);
+  cout << "Mv=" << Mv << endl;
+  cout << "MpHomo=" << MpHomo << endl;
+  M = Mo*Mv*Mp;//Mv*MpHomo; //was Mv*Mp;  Mv*MpHomo doens't work cause it produces a Vector4d
 
 
-
+  cout << "rot_val" << rot_val << endl;
   rot_val += rotateSpeed;
 
 }
 
 int main(int, char **){
   //Create the Perspective Matrix
-  int n = 1;
-  int f = 2;
+  n = -1;
+  f = -2;
   rot_val = 0;
   Mp << 1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, (n+f)/n, -f,
         0, 0, (1/n), 0;
   //Vertices
-  lbn << -0.5, 0.5, 0.25, 1;
-  rbn << 0.5, 0.5, 0.25, 1;
-  ltn << -0.5, -0.5, 0.25, 1;
-  rtn << 0.5, -0.5, 0.25, 1;
-  lbf << -0.5, 0.5, -0.25, 1;//lbf << -0.7, 0.7, -0.7, 1;
-  rbf << 0.5, 0.5, -0.25, 1;//rbf << 0.7, 0.7, -0.7, 1;
-  ltf << -0.5, -0.5, -0.25, 1;//ltf << -0.7, -0.7, -0.7, 1;
-  rtf << 0.5, -0.5, -0.25, 1;//rtf << 0.7, -0.7, -0.7, 1;
+  lbn << -0.5, 0.5, -0.25, 1;
+  rbn << 0.5, 0.5, -0.25, 1;
+  ltn << -0.5, -0.5, -0.25, 1;
+  rtn << 0.5, -0.5, -0.25, 1;
+  lbf << -0.5, 0.5, -0.75, 1;//lbf << -0.7, 0.7, -0.7, 1;
+  rbf << 0.5, 0.5, -0.75, 1;//rbf << 0.7, 0.7, -0.7, 1;
+  ltf << -0.5, -0.5, -0.75, 1;//ltf << -0.7, -0.7, -0.7, 1;
+  rtf << 0.5, -0.5, -0.75, 1;//rtf << 0.7, -0.7, -0.7, 1;
   //View positions
-  eyePos << 0, 0, -2;
+  eyePos << 0, 0, 2;
 
   viewUp << 0, 1, 0;
   //Setup for Mv
@@ -170,6 +182,15 @@ int main(int, char **){
             0, 1, 0, -eyePos(1),
             0, 0, 1, -eyePos(2),
             0, 0, 0, 1;
+  Morth << 2/(.5-(-.5)), 0, 0, -((.5+(-.5)) / (.5-(-.5))),
+           0, 2/(.5-(-.5)), 0, -((.5+(-.5)) / (.5-(-.5))),
+           0, 0, 2/(-.25-.25), -((-.25+.25) / (-.25-.25)),
+           0, 0, 0, 1;
+  Mvp << -.25/2, 0, 0, (-.25-1)/2,
+         0, -.5/2, 0, (-.5-1)/2,
+         0, 0, 1, 0,
+         0, 0, 0, 1;
+  Mo = Mvp*Morth;
 
 
 
