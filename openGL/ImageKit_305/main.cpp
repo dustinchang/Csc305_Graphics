@@ -14,7 +14,7 @@ bool leftButtonPressed = false;
 //Rotation
 bool rotateCW = true; //Whether we're rotating clockwise or not
 float rotateAngle = 0;
-float rotateSpeed = 0.07;    //was 0.2
+float rotateSpeed = 0.05;//0.005;    //was 0.2
 float rot_val = 0;
 
 Canvas canvas;
@@ -121,6 +121,7 @@ void OnPaint()
 
 }
 
+bool change = false;
 void OnTimer()
 {
   //Now create animation
@@ -144,18 +145,17 @@ void OnTimer()
           0, 0, 0, 1;
   Mv = Mvrot*xyz_1s; //*Mp;
 
-  homogenous << 0, 0, 0, 1;
-  MpHomo = Mp*homogenous;
-  cout << "MpHomo1=" << MpHomo << endl;
-  MpHomo /= (0/n);
-  cout << "Mv=" << Mv << endl;
-  cout << "MpHomo=" << MpHomo << endl;
-  M = /*Mo**/Mv*Mp;//Mv*MpHomo; //was Mv*Mp;  Mv*MpHomo doens't work cause it produces a Vector4d
+  M = Mv*Mp; //Mv*MpHomo;
 
 
   cout << "rot_val" << rot_val << endl;
-  rot_val += rotateSpeed;
-
+  //Testing for rotation direction around y axis
+  if (change == false && rot_val < 1) {
+    rot_val += rotateSpeed;
+  } else {
+    rot_val -= rotateSpeed;
+    change = true;
+  }
 }
 
 int main(int, char **){
