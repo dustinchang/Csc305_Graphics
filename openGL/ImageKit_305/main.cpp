@@ -127,7 +127,10 @@ void OnTimer()
   if(rotateCW) rotateAngle -= rotateSpeed;
   else rotateAngle += rotateSpeed;
   //Was in main
-  gaze << sin(rot_val), 0, cos(rot_val);
+  eyePos << sin(rot_val), 0, cos(rot_val); //0, 0, 2;
+  //Normalize eyePos
+  gaze = (eyePos / sqrt(pow(eyePos(0), 2) + pow(eyePos(1), 2) + pow(eyePos(2), 2)))*-1;
+  //gaze << sin(rot_val), 0, cos(rot_val);
 
   //Setup W, U, and V Vectors
   W = gaze / sqrt(pow(gaze(0), 2) + pow(gaze(1), 2) + pow(gaze(2), 2));
@@ -147,7 +150,7 @@ void OnTimer()
   MpHomo /= (0/n);
   cout << "Mv=" << Mv << endl;
   cout << "MpHomo=" << MpHomo << endl;
-  M = Mo*Mv*Mp;//Mv*MpHomo; //was Mv*Mp;  Mv*MpHomo doens't work cause it produces a Vector4d
+  M = /*Mo**/Mv*Mp;//Mv*MpHomo; //was Mv*Mp;  Mv*MpHomo doens't work cause it produces a Vector4d
 
 
   cout << "rot_val" << rot_val << endl;
@@ -158,7 +161,7 @@ void OnTimer()
 int main(int, char **){
   //Create the Perspective Matrix
   n = -1;
-  f = -2;
+  f = -1;
   rot_val = 0;
   Mp << 1, 0, 0, 0,
         0, 1, 0, 0,
@@ -174,7 +177,7 @@ int main(int, char **){
   ltf << -0.5, -0.5, -0.75, 1;//ltf << -0.7, -0.7, -0.7, 1;
   rtf << 0.5, -0.5, -0.75, 1;//rtf << 0.7, -0.7, -0.7, 1;
   //View positions
-  eyePos << 0, 0, 2;
+
 
   viewUp << 0, 1, 0;
   //Setup for Mv
