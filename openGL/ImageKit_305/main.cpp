@@ -110,8 +110,8 @@ void OnPaint()
     //cout << "M=" << M << endl;
     p = M*Vertices4d[i];
     q = M*Vertices4d[i+1];
-    cout << "p=" << p << endl;
-    cout << "q=" << q << endl;
+    //cout << "p=" << p << endl;
+    //cout << "q=" << q << endl;
     float ph = p(2)/n;
     float qh = q(2)/n;
     //cout << "ph=" << ph << endl;
@@ -128,7 +128,8 @@ bool change = false;
 void OnTimer()
 {
   //Was in main
-  eyePos << 0, 0, 15;//sin(rot_val)*5, 0, cos(rot_val)*5; //0, 0, 2;
+  eyePos << sin(vppos_x)*15, 0, cos(vppos_x)*15;//0, 0, 15; //0, 0, 2;
+  cout << "cos(vppos_x)=" << cos(vppos_x)*15 << endl;
   //Normalize eyePos
   gaze = -(eyePos.normalized());//(eyePos / sqrt(pow(eyePos(0), 2) + pow(eyePos(1), 2) + pow(eyePos(2), 2)))*-1;
   //gaze << sin(rot_val), 0, cos(rot_val);
@@ -138,7 +139,7 @@ void OnTimer()
   txW = viewUp.cross(W);
   U = (txW).normalized(); /// sqrt(pow(txW(0), 2) + pow(txW(1), 2) + pow(txW(2), 2));
   V = (W.cross(U)).normalized();
-
+  //Setup for Mv
   Mvrot << U(0), U(1), U(2), 0,
           V(0), V(1), V(2), 0,
           W(0), W(1), W(2), 0,
@@ -147,15 +148,15 @@ void OnTimer()
             0, 1, 0, -eyePos(1),
             0, 0, 1, -eyePos(2),
             0, 0, 0, 1;
-  Mv = Mvrot*xyz_1s; //*Mp;
+  Mv = Mvrot*xyz_1s; //Mcam
 
   cout << "Mo=" << Mo << endl;
   cout << "Mv=" << Mv << endl;
   cout << "Mp=" << Mp << endl;
-  M = Mo*Mv*Mp; //Mv*MpHomo;
+  M = Mo*Mp*Mv;
 
 
-  cout << "rot_val" << rot_val << endl;
+  //cout << "rot_val" << rot_val << endl;
   //Testing for rotation direction around y axis
   if (change == false && rot_val < 1) {
     rot_val += rotateSpeed;
@@ -170,20 +171,11 @@ int main(int, char **){
   n = -1.0f;
   f = -10.0f;
   rot_val = 0;
-  Mp << 1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, (n+f)/n, -f,
-        0, 0, (1/n), 0;
+  Mp << n, 0, 0, 0,
+        0, n, 0, 0,
+        0, 0, (n+f), -(f*n),
+        0, 0, 1, 0;
   //Vertices
-  /*lbn << -0.5, 0.5, 1.0, 1;
-  rbn << 0.5, 0.5, 1.0, 1;
-  ltn << -0.5, -0.5, 1.0, 1;
-  rtn << 0.5, -0.5, 1.0, 1;
-  lbf << -0.5, 0.5, -1.0, 1;//lbf << -0.7, 0.7, -0.7, 1;
-  rbf << 0.5, 0.5, -1.0, 1;//rbf << 0.7, 0.7, -0.7, 1;
-  ltf << -0.5, -0.5, -1.0, 1;//ltf << -0.7, -0.7, -0.7, 1;
-  rtf << 0.5, -0.5, -1.0, 1;//rtf << 0.7, -0.7, -0.7, 1*/
-
   lbn << -1, -1, -1, 1,
   rbn << 1, -1, -1, 1,
   ltn << -1, 1, -1, 1,
@@ -195,7 +187,7 @@ int main(int, char **){
 
   //View positions
   viewUp << 0, 1, 0;
-  //Setup for Mv
+
 
 
   float t = 1.0f;
