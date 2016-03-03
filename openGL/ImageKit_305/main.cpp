@@ -127,15 +127,25 @@ void OnPaint()
 bool change = false;
 float initial1 = 0;
 float initial2 = 0;
+float p_dist = 10;
 void OnTimer()
 {
   //Was in main
   //http://mathinsight.org/spherical_coordinates
   //Careful: Had to change to their coordinate systems
-  eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2); //0, 0, 15; //0, 0, 2;
+  //eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2); //0, 0, 15; //0, 0, 2;
+  eyePos << 10*sin(initial2)*sin(initial1), 10*cos(initial2), 10*sin(initial2)*cos(initial1);  //Works for x and y direction but inverted
+  //eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2);
+  //eyePos << sin(vppos_x)*8, cos(vppos_y)*8, cos(vppos_x)*8;
+  //eyePos << 0, cos(vppos_y)*8, sin(vppos_y)*8; //JUST Y
+  //eyePos << sin(vppos_x)*8, 0, cos(vppos_x)*8; //JUST X
+
+
   cout << "10*sin(initial1)*sin(initial2)=" << 10*sin(initial1)*sin(initial2) << endl;
-  cout << "10*cos(initial1)" << 10*cos(initial1) << endl;
+  cout << "10*cos(initial1)=" << 10*cos(initial1) << endl;
   cout << "10*sin(initial1)*cos(initial2)=" << 10*sin(initial1)*cos(initial2) << endl;
+  cout << "vppos_x=" << vppos_x << endl;
+  cout << "vppos_y=" << vppos_y << endl;
   //Normalize eyePos
   gaze = -(eyePos.normalized());//(eyePos / sqrt(pow(eyePos(0), 2) + pow(eyePos(1), 2) + pow(eyePos(2), 2)))*-1;
   //gaze << sin(rot_val), 0, cos(rot_val);
@@ -166,8 +176,8 @@ void OnTimer()
     rot_val -= rotateSpeed;
     change = true;
   }
-  initial1 += vppos_x;
-  initial2 += vppos_x;
+  initial1 = asin(vppos_x/p_dist);
+  initial2 = acos(vppos_y/p_dist);
 }
 
 int main(int, char **){
