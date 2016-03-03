@@ -105,16 +105,19 @@ void OnPaint()
     //DrawCube(0,0,0);//vppos_x, vppos_y);
   //}
   for(int i=0; i < 24; i+=2) {
+    //cout << "Vertices4d[i]=" << Vertices4d[i] << endl;
+    //cout << "Vertices4d[i+1]=" << Vertices4d[i+1] << endl;
+    //cout << "M=" << M << endl;
     p = M*Vertices4d[i];
     q = M*Vertices4d[i+1];
-    // cout << "M=" << M << endl;
-    // cout << "p=" << p << endl;
-    // cout << "q=" << q << endl;
-    // cout << "Vertices4d[i]=" << Vertices4d[i] << endl;
-    // cout << "Vertices4d[i+1]=" << Vertices4d[i+1] << endl;
+    cout << "p=" << p << endl;
+    cout << "q=" << q << endl;
+    float ph = p(2)/n;
+    float qh = q(2)/n;
+    //cout << "ph=" << ph << endl;
+    //cout << "qh=" << qh << endl;
 
-    //canvas.AddLine(Vertices4d[i](0), Vertices4d[i](1), Vertices4d[i+1](0), Vertices4d[i+1](1));
-    canvas.AddLine(p(0), p(1), q(0), q(1));
+    canvas.AddLine(p(0)/ph, p(1)/ph, q(0)/qh, q(1)/qh);
     //canvas.AddLine(0,0,.8,0); //Goes right
     //canvas.AddLine(0,0,0,.8); //Goes up
   }
@@ -124,28 +127,32 @@ void OnPaint()
 bool change = false;
 void OnTimer()
 {
-  //Now create animation
-  if(rotateCW) rotateAngle -= rotateSpeed;
-  else rotateAngle += rotateSpeed;
   //Was in main
-  eyePos << sin(rot_val), 0, cos(rot_val); //0, 0, 2;
+  eyePos << 0, 0, 15;//sin(rot_val)*5, 0, cos(rot_val)*5; //0, 0, 2;
   //Normalize eyePos
-  gaze = (eyePos / sqrt(pow(eyePos(0), 2) + pow(eyePos(1), 2) + pow(eyePos(2), 2)))*-1;
+  gaze = -(eyePos.normalized());//(eyePos / sqrt(pow(eyePos(0), 2) + pow(eyePos(1), 2) + pow(eyePos(2), 2)))*-1;
   //gaze << sin(rot_val), 0, cos(rot_val);
 
   //Setup W, U, and V Vectors
-  W = gaze / sqrt(pow(gaze(0), 2) + pow(gaze(1), 2) + pow(gaze(2), 2));
+  W = -(gaze.normalized()); /// sqrt(pow(gaze(0), 2) + pow(gaze(1), 2) + pow(gaze(2), 2));
   txW = viewUp.cross(W);
-  U = txW / sqrt(pow(txW(0), 2) + pow(txW(1), 2) + pow(txW(2), 2));
-  V = W.cross(U);
+  U = (txW).normalized(); /// sqrt(pow(txW(0), 2) + pow(txW(1), 2) + pow(txW(2), 2));
+  V = (W.cross(U)).normalized();
 
   Mvrot << U(0), U(1), U(2), 0,
           V(0), V(1), V(2), 0,
           W(0), W(1), W(2), 0,
           0, 0, 0, 1;
+  xyz_1s << 1, 0, 0, -eyePos(0),
+            0, 1, 0, -eyePos(1),
+            0, 0, 1, -eyePos(2),
+            0, 0, 0, 1;
   Mv = Mvrot*xyz_1s; //*Mp;
 
-  M = Mv*Mp; //Mv*MpHomo;
+  cout << "Mo=" << Mo << endl;
+  cout << "Mv=" << Mv << endl;
+  cout << "Mp=" << Mp << endl;
+  M = Mo*Mv*Mp; //Mv*MpHomo;
 
 
   cout << "rot_val" << rot_val << endl;
@@ -160,65 +167,55 @@ void OnTimer()
 
 int main(int, char **){
   //Create the Perspective Matrix
-  n = -1;
-  f = -1;
+  n = -1.0f;
+  f = -10.0f;
   rot_val = 0;
   Mp << 1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, (n+f)/n, -f,
         0, 0, (1/n), 0;
   //Vertices
-  lbn << -0.5, 0.5, -0.25, 1;
-  rbn << 0.5, 0.5, -0.25, 1;
-  ltn << -0.5, -0.5, -0.25, 1;
-  rtn << 0.5, -0.5, -0.25, 1;
-  lbf << -0.5, 0.5, -0.75, 1;//lbf << -0.7, 0.7, -0.7, 1;
-  rbf << 0.5, 0.5, -0.75, 1;//rbf << 0.7, 0.7, -0.7, 1;
-  ltf << -0.5, -0.5, -0.75, 1;//ltf << -0.7, -0.7, -0.7, 1;
-  rtf << 0.5, -0.5, -0.75, 1;//rtf << 0.7, -0.7, -0.7, 1;
+  /*lbn << -0.5, 0.5, 1.0, 1;
+  rbn << 0.5, 0.5, 1.0, 1;
+  ltn << -0.5, -0.5, 1.0, 1;
+  rtn << 0.5, -0.5, 1.0, 1;
+  lbf << -0.5, 0.5, -1.0, 1;//lbf << -0.7, 0.7, -0.7, 1;
+  rbf << 0.5, 0.5, -1.0, 1;//rbf << 0.7, 0.7, -0.7, 1;
+  ltf << -0.5, -0.5, -1.0, 1;//ltf << -0.7, -0.7, -0.7, 1;
+  rtf << 0.5, -0.5, -1.0, 1;//rtf << 0.7, -0.7, -0.7, 1*/
+
+  lbn << -1, -1, -1, 1,
+  rbn << 1, -1, -1, 1,
+  ltn << -1, 1, -1, 1,
+  rtn << 1, 1, -1, 1,
+  lbf << -1, -1, -3, 1,
+  rbf << 1, -1, -3, 1,
+  ltf << -1, 1, -3, 1,
+  rtf << 1, 1, -3, 1;
+
   //View positions
-
-
   viewUp << 0, 1, 0;
   //Setup for Mv
-  xyz_1s << 1, 0, 0, -eyePos(0),
-            0, 1, 0, -eyePos(1),
-            0, 0, 1, -eyePos(2),
-            0, 0, 0, 1;
-  Morth << 2/(.5-(-.5)), 0, 0, -((.5+(-.5)) / (.5-(-.5))),
+
+
+  float t = 1.0f;
+  float r = 1.0f;
+  float b = -1.0f;
+  float l = -1.0f;
+  Morth << 2/(r-l), 0, 0, -((r+l)/(r-l)),
+          0, 2/(t-b), 0, -((t+b)/(t-b)),
+          0, 0, 2/(n-f), -((n+f)/(n-f)),
+          0, 0, 0, 1;
+  /*Morth << 2/(.5-(-.5)), 0, 0, -((.5+(-.5)) / (.5-(-.5))),
            0, 2/(.5-(-.5)), 0, -((.5+(-.5)) / (.5-(-.5))),
            0, 0, 2/(-.25-.25), -((-.25+.25) / (-.25-.25)),
-           0, 0, 0, 1;
-  Mvp << -.25/2, 0, 0, (-.25-1)/2,
+           0, 0, 0, 1;*/
+  /*Mvp << -.25/2, 0, 0, (-.25-1)/2,
          0, -.5/2, 0, (-.5-1)/2,
          0, 0, 1, 0,
-         0, 0, 0, 1;
-  Mo = Mvp*Morth;
+         0, 0, 0, 1;*/
+  Mo = Morth;
 
-
-
-
-
-  //cout << "W=" << W << endl;
-  //cout << "txW=" << txW << endl;
-  //cout << "U=" << U << endl;
-  //cout << "V=" << V << endl;
-  //cout << "Mvrot=" << Mvrot << endl;
-  //cout << "Mv=" << Mv << endl;
-  //cout << "M=" << M << endl;
-
-  //Vertices4d.push_back(lbn, rbn);
-  //Vertices4d.push_back(lbn, ltn);
-  //Vertices4d.push_back(lbn, lbf);
-  //Vertices4d.push_back(rbn, rtn);
-  //Vertices4d.push_back(rbn, rbf);
-  //Vertices4d.push_back(ltn, rtn);
-  //Vertices4d.push_back(ltn, ltf);
-  //Vertices4d.push_back(rtn, rtf);
-  //Vertices4d.push_back(lbf, rbf);
-  //Vertices4d.push_back(lbf, ltf);
-  //Vertices4d.push_back(rbf, rtf);
-  //Vertices4d.push_back(ltf, rtf);
   Vertices4d.push_back(lbn);
   Vertices4d.push_back(rbn);
   Vertices4d.push_back(lbn);
