@@ -130,8 +130,12 @@ float initial2 = 0;
 void OnTimer()
 {
   //Was in main
-  eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2);//0, 0, 15; //0, 0, 2;
-  cout << "cos(vppos_x)=" << cos(vppos_x)*15 << endl;
+  //http://mathinsight.org/spherical_coordinates
+  //Careful: Had to change to their coordinate systems
+  eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2); //0, 0, 15; //0, 0, 2;
+  cout << "10*sin(initial1)*sin(initial2)=" << 10*sin(initial1)*sin(initial2) << endl;
+  cout << "10*cos(initial1)" << 10*cos(initial1) << endl;
+  cout << "10*sin(initial1)*cos(initial2)=" << 10*sin(initial1)*cos(initial2) << endl;
   //Normalize eyePos
   gaze = -(eyePos.normalized());//(eyePos / sqrt(pow(eyePos(0), 2) + pow(eyePos(1), 2) + pow(eyePos(2), 2)))*-1;
   //gaze << sin(rot_val), 0, cos(rot_val);
@@ -152,11 +156,7 @@ void OnTimer()
             0, 0, 0, 1;
   Mv = Mvrot*xyz_1s; //Mcam
 
-  cout << "Mo=" << Mo << endl;
-  cout << "Mv=" << Mv << endl;
-  cout << "Mp=" << Mp << endl;
   M = Mo*Mp*Mv;
-
 
   //cout << "rot_val" << rot_val << endl;
   //Testing for rotation direction around y axis
@@ -166,8 +166,8 @@ void OnTimer()
     rot_val -= rotateSpeed;
     change = true;
   }
-  initial1 += 0.2;
-  initial2 += 0.2;
+  initial1 += vppos_x;
+  initial2 += vppos_x;
 }
 
 int main(int, char **){
