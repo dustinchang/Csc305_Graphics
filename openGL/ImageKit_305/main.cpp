@@ -125,10 +125,12 @@ void OnPaint()
 }
 
 bool change = false;
+float initial1 = 0;
+float initial2 = 0;
 void OnTimer()
 {
   //Was in main
-  eyePos << sin(vppos_x)*15, 0, cos(vppos_x)*15;//0, 0, 15; //0, 0, 2;
+  eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2);//0, 0, 15; //0, 0, 2;
   cout << "cos(vppos_x)=" << cos(vppos_x)*15 << endl;
   //Normalize eyePos
   gaze = -(eyePos.normalized());//(eyePos / sqrt(pow(eyePos(0), 2) + pow(eyePos(1), 2) + pow(eyePos(2), 2)))*-1;
@@ -164,6 +166,8 @@ void OnTimer()
     rot_val -= rotateSpeed;
     change = true;
   }
+  initial1 += 0.2;
+  initial2 += 0.2;
 }
 
 int main(int, char **){
@@ -176,14 +180,14 @@ int main(int, char **){
         0, 0, (n+f), -(f*n),
         0, 0, 1, 0;
   //Vertices
-  lbn << -1, -1, -1, 1,
-  rbn << 1, -1, -1, 1,
-  ltn << -1, 1, -1, 1,
-  rtn << 1, 1, -1, 1,
-  lbf << -1, -1, -3, 1,
-  rbf << 1, -1, -3, 1,
-  ltf << -1, 1, -3, 1,
-  rtf << 1, 1, -3, 1;
+  lbn << -1, -1, 1, 1,
+  rbn << 1, -1, 1, 1,
+  ltn << -1, 1, 1, 1,
+  rtn << 1, 1, 1, 1,
+  lbf << -1, -1, -1, 1,
+  rbf << 1, -1, -1, 1,
+  ltf << -1, 1, -1, 1,
+  rtf << 1, 1, -1, 1;
 
   //View positions
   viewUp << 0, 1, 0;
