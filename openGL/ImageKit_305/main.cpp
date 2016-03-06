@@ -137,7 +137,6 @@ void OnPaint()
     //canvas.AddLine(0,0,.8,0); //Goes right
     //canvas.AddLine(0,0,0,.8); //Goes up
   }
-
 }
 
 void OnTimer()
@@ -151,7 +150,7 @@ void OnTimer()
     y_val = p_dist*cos(initial2);
     z_val = p_dist*sin(initial2)*cos(initial1);
     //eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2);
-    eyePos << x_val, y_val, z_val;
+    eyePos << x_val, -y_val, -z_val;
     //eyePos << p_dist*sin(initial2)*sin(initial1), p_dist*cos(initial2), p_dist*sin(initial2)*cos(initial1);  //Works for x and y direction but inverted
   } else if(rightButtonPressed) {
     p_dist -= (r_y_pressed-vppos_y)*.2;  //TODO in mouseButton as soon as right mouseButton pressed, set a value of that y and have vppos_y +- to that to possibly get a more accurate inc/dec by moving mouse up/down
@@ -178,6 +177,9 @@ void OnTimer()
   cout << "vppos_y=" << vppos_y << endl;
   cout << "initial1=" << initial1 << endl;
   cout << "initial2=" << initial2 << endl;
+  cout << "x_val=" << x_val << endl;
+  cout << "y_val=" << y_val << endl;
+  cout << "z_val=" << z_val << endl;
 
   //Normalize eyePos
   gaze = -(eyePos.normalized());//(eyePos / sqrt(pow(eyePos(0), 2) + pow(eyePos(1), 2) + pow(eyePos(2), 2)))*-1;
