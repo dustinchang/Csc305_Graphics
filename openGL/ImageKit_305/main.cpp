@@ -11,6 +11,7 @@ unsigned int height = 512;
 float vppos_x = 0;
 float vppos_y = 0;
 bool leftButtonPressed = false;
+bool rightButtonPressed = false;
 //Rotation
 bool rotateCW = true; //Whether we're rotating clockwise or not
 float rotateAngle = 0;
@@ -56,6 +57,13 @@ Vector3d txW;
 
 float n;
 float f;
+bool change = false;
+float initial1 = 0;
+float initial2 = 0;
+float p_dist = 10;
+float x_val = p_dist*sin(initial2)*sin(initial1);
+float y_val = p_dist*cos(initial2);
+float z_val = p_dist*sin(initial2)*cos(initial1);
 
 std::vector<Vector4d> Vertices4d;
 
@@ -78,6 +86,10 @@ void MouseButton(MouseButtons mouseButton, bool press)
   {
       if (press == true) leftButtonPressed = true;
       else leftButtonPressed = false;
+  }
+  if(mouseButton == RightButton) {
+    if(press == true) rightButtonPressed = true;
+    else rightButtonPressed = false;
   }
 }
 
@@ -124,28 +136,45 @@ void OnPaint()
 
 }
 
-bool change = false;
-float initial1 = 0;
-float initial2 = 0;
-float p_dist = 10;
 void OnTimer()
 {
-  //Was in main
   //http://mathinsight.org/spherical_coordinates
   //Careful: Had to change to their coordinate systems
   //eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2); //0, 0, 15; //0, 0, 2;
-  eyePos << 10*sin(initial2)*sin(initial1), 10*cos(initial2), 10*sin(initial2)*cos(initial1);  //Works for x and y direction but inverted
+  //MAYBE use a start and end angle
+  if(leftButtonPressed) {
+    x_val = p_dist*sin(initial2)*sin(initial1);
+    y_val = p_dist*cos(initial2);
+    z_val = p_dist*sin(initial2)*cos(initial1);
+    //eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2);
+    eyePos << x_val, y_val, z_val;
+    //eyePos << p_dist*sin(initial2)*sin(initial1), p_dist*cos(initial2), p_dist*sin(initial2)*cos(initial1);  //Works for x and y direction but inverted
+  } else if(rightButtonPressed) {
+    p_dist -= vppos_y*.5;  //TODO in mouseButton as soon as right mouseButton pressed, set a value of that y and have vppos_y +- to that to possibly get a more accurate inc/dec by moving mouse up/down
+    x_val = p_dist*sin(initial2)*sin(initial1);
+    y_val = p_dist*cos(initial2);
+    z_val = p_dist*sin(initial2)*cos(initial1);
+    //eyePos << p_dist*sin(initial2)*sin(initial1), p_dist*cos(initial2), p_dist*sin(initial2)*cos(initial1);
+    eyePos << x_val, y_val, z_val;
+    std::cout << "IN HERE!!!!!!!!!!" << std::endl;
+  } else {
+    //eyePos << 0, 0, 10;
+    eyePos << x_val, y_val, z_val;
+  }
   //eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2);
   //eyePos << sin(vppos_x)*8, cos(vppos_y)*8, cos(vppos_x)*8;
   //eyePos << 0, cos(vppos_y)*8, sin(vppos_y)*8; //JUST Y
   //eyePos << sin(vppos_x)*8, 0, cos(vppos_x)*8; //JUST X
 
-
+  cout << "X_VALUES=" << x_val << "Y_VALUES=" << y_val << "Z_VALUES=" << z_val << endl;
   cout << "10*sin(initial1)*sin(initial2)=" << 10*sin(initial1)*sin(initial2) << endl;
   cout << "10*cos(initial1)=" << 10*cos(initial1) << endl;
   cout << "10*sin(initial1)*cos(initial2)=" << 10*sin(initial1)*cos(initial2) << endl;
   cout << "vppos_x=" << vppos_x << endl;
   cout << "vppos_y=" << vppos_y << endl;
+  cout << "initial1=" << initial1 << endl;
+  cout << "initial2=" << initial2 << endl;
+
   //Normalize eyePos
   gaze = -(eyePos.normalized());//(eyePos / sqrt(pow(eyePos(0), 2) + pow(eyePos(1), 2) + pow(eyePos(2), 2)))*-1;
   //gaze << sin(rot_val), 0, cos(rot_val);
@@ -165,9 +194,7 @@ void OnTimer()
             0, 0, 1, -eyePos(2),
             0, 0, 0, 1;
   Mv = Mvrot*xyz_1s; //Mcam
-
   M = Mo*Mp*Mv;
-
   //cout << "rot_val" << rot_val << endl;
   //Testing for rotation direction around y axis
   if (change == false && rot_val < 1) {
