@@ -57,6 +57,7 @@ Vector3d txW;
 
 float n;
 float f;
+bool starting = true;
 bool change = false;
 float r_y_pressed; //For when the RightButton is clicked set the y of vppos_y for starting point
 float initial1 = 0;
@@ -151,6 +152,7 @@ void OnTimer()
     z_val = p_dist*sin(initial2)*cos(initial1);
     //eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2);
     eyePos << x_val, -y_val, -z_val;
+    change = true;
     //eyePos << p_dist*sin(initial2)*sin(initial1), p_dist*cos(initial2), p_dist*sin(initial2)*cos(initial1);  //Works for x and y direction but inverted
   } else if(rightButtonPressed) {
     p_dist -= (r_y_pressed-vppos_y)*.2;  //TODO in mouseButton as soon as right mouseButton pressed, set a value of that y and have vppos_y +- to that to possibly get a more accurate inc/dec by moving mouse up/down
@@ -159,17 +161,22 @@ void OnTimer()
     z_val = p_dist*sin(initial2)*cos(initial1);
     //eyePos << p_dist*sin(initial2)*sin(initial1), p_dist*cos(initial2), p_dist*sin(initial2)*cos(initial1);
     eyePos << x_val, y_val, z_val;
+    change = false;
     std::cout << "IN HERE!!!!!!!!!!" << std::endl;
   } else {
-    //eyePos << 0, 0, 10;
-    eyePos << x_val, y_val, z_val;
+    if(starting) {
+      eyePos << 0, 0, 10;
+    } else if(change) {
+      eyePos << x_val, -y_val, -z_val;
+    } else {
+      eyePos << x_val, y_val, z_val;
+    }
   }
   //eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2);
   //eyePos << sin(vppos_x)*8, cos(vppos_y)*8, cos(vppos_x)*8;
   //eyePos << 0, cos(vppos_y)*8, sin(vppos_y)*8; //JUST Y
   //eyePos << sin(vppos_x)*8, 0, cos(vppos_x)*8; //JUST X
 
-  cout << "X_VALUES=" << x_val << "Y_VALUES=" << y_val << "Z_VALUES=" << z_val << endl;
   cout << "10*sin(initial1)*sin(initial2)=" << 10*sin(initial1)*sin(initial2) << endl;
   cout << "10*cos(initial1)=" << 10*cos(initial1) << endl;
   cout << "10*sin(initial1)*cos(initial2)=" << 10*sin(initial1)*cos(initial2) << endl;
