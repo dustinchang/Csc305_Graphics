@@ -58,6 +58,7 @@ Vector3d txW;
 float n;
 float f;
 bool change = false;
+float r_y_pressed; //For when the RightButton is clicked set the y of vppos_y for starting point
 float initial1 = 0;
 float initial2 = 0;
 float p_dist = 10;
@@ -88,7 +89,10 @@ void MouseButton(MouseButtons mouseButton, bool press)
       else leftButtonPressed = false;
   }
   if(mouseButton == RightButton) {
-    if(press == true) rightButtonPressed = true;
+    if(press == true) {
+      rightButtonPressed = true;
+      r_y_pressed = vppos_y;  //Set right mouseButton start point
+    }
     else rightButtonPressed = false;
   }
 }
@@ -150,7 +154,7 @@ void OnTimer()
     eyePos << x_val, y_val, z_val;
     //eyePos << p_dist*sin(initial2)*sin(initial1), p_dist*cos(initial2), p_dist*sin(initial2)*cos(initial1);  //Works for x and y direction but inverted
   } else if(rightButtonPressed) {
-    p_dist -= vppos_y*.5;  //TODO in mouseButton as soon as right mouseButton pressed, set a value of that y and have vppos_y +- to that to possibly get a more accurate inc/dec by moving mouse up/down
+    p_dist -= (r_y_pressed-vppos_y)*.2;  //TODO in mouseButton as soon as right mouseButton pressed, set a value of that y and have vppos_y +- to that to possibly get a more accurate inc/dec by moving mouse up/down
     x_val = p_dist*sin(initial2)*sin(initial1);
     y_val = p_dist*cos(initial2);
     z_val = p_dist*sin(initial2)*cos(initial1);
