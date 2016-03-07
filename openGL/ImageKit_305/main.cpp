@@ -10,6 +10,8 @@ unsigned int height = 512;
 
 float vppos_x = 0;
 float vppos_y = 0;
+float y_pos = 0;
+float x_pos = 0;
 bool leftButtonPressed = false;
 bool rightButtonPressed = false;
 //Rotation
@@ -59,6 +61,7 @@ float n;
 float f;
 bool starting = true;
 bool change = false;
+bool pressed2 = false;
 float r_y_pressed; //For when the RightButton is clicked set the y of vppos_y for starting point
 float initial1 = 0;
 float initial2 = 0;
@@ -66,6 +69,15 @@ float p_dist = 10;
 float x_val = p_dist*sin(initial2)*sin(initial1);
 float y_val = p_dist*cos(initial2);
 float z_val = p_dist*sin(initial2)*cos(initial1);
+float x_val_in;
+float y_val_in;
+float z_val_in;
+float end_angle_click1 = 0;
+float end_angle_click2 = 0;
+float init_click1 = 0;
+float init_click2 = 0;
+float angle1 = 0;
+float angle2 = 0;
 
 std::vector<Vector4d> Vertices4d;
 
@@ -84,9 +96,21 @@ void MouseMove(double x, double y)
 void MouseButton(MouseButtons mouseButton, bool press)
 {
   //What to do with the keys?
-  if (mouseButton == LeftButton)
-  {
-      if (press == true) leftButtonPressed = true;
+  if (mouseButton == LeftButton) {
+      if (press == true) {
+        leftButtonPressed = true;
+        //maybe init init_click2 here
+        //initial1 = asin(vppos_x/p_dist);
+        //initial2 = acos(vppos_y/p_dist);
+        init_click1 = asin(vppos_x/p_dist); //To get the starting initial angle when the click happens
+        init_click2 = acos(vppos_y/p_dist);
+        x_val_in = x_val;
+        y_val_in = y_val;
+        z_val_in = z_val;
+        x_pos = vppos_x;
+        y_pos = vppos_y;
+        cout << "In HERE!!!" << endl;
+      }
       else leftButtonPressed = false;
   }
   if(mouseButton == RightButton) {
@@ -140,20 +164,43 @@ void OnPaint()
   }
 }
 
-void OnTimer()
-{
+void OnTimer() {
   //http://mathinsight.org/spherical_coordinates
   //Careful: Had to change to their coordinate systems
   //eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2); //0, 0, 15; //0, 0, 2;
   //MAYBE use a start and end angle
+
+  initial1 = asin(vppos_x/p_dist);
+  initial2 = acos(vppos_y/p_dist);
+
+
+  if(initial1 != init_click1 && pressed2==true) {
+    angle1 = (initial1 - init_click1) + end_angle_click1;
+    angle2 = (initial2 - init_click2) + end_angle_click2;
+    cout << "IN IF!!!" << endl;
+  } else {
+    //TODO with angles
+    angle1 = /*initial1 + */end_angle_click1;
+    angle2 = /*initial2 + */end_angle_click2;
+    cout << "IN ELSE!!!" << endl;
+  }
+
   if(leftButtonPressed) {
-    x_val = p_dist*sin(initial2)*sin(initial1);
-    y_val = p_dist*cos(initial2);
-    z_val = p_dist*sin(initial2)*cos(initial1);
+    //TODO HERE Use another initial to subtract from the moving intial and then compare or use that value against the initial
+    //From before(end_angle_click1&end_angle_click2) and add it to them i believe this may work
+    x_val = p_dist*sin(angle2)*sin(angle1);
+    y_val = p_dist*cos(angle2);
+    z_val = p_dist*sin(angle2)*cos(angle1);
     //eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2);
+    //eyePos << x_val_in+x_val, -y_val_in-y_val, -z_val_in-z_val;
     eyePos << x_val, -y_val, -z_val;
     change = true;
+    x_pos = vppos_x;
+    y_pos = vppos_y;
     //eyePos << p_dist*sin(initial2)*sin(initial1), p_dist*cos(initial2), p_dist*sin(initial2)*cos(initial1);  //Works for x and y direction but inverted
+    if(initial1 != init_click1) {
+      pressed2 = true;
+    }
   } else if(rightButtonPressed) {
     p_dist -= (r_y_pressed-vppos_y)*.2;  //TODO in mouseButton as soon as right mouseButton pressed, set a value of that y and have vppos_y +- to that to possibly get a more accurate inc/dec by moving mouse up/down
     x_val = p_dist*sin(initial2)*sin(initial1);
@@ -162,20 +209,24 @@ void OnTimer()
     //eyePos << p_dist*sin(initial2)*sin(initial1), p_dist*cos(initial2), p_dist*sin(initial2)*cos(initial1);
     eyePos << x_val, y_val, z_val;
     change = false;
-    std::cout << "IN HERE!!!!!!!!!!" << std::endl;
   } else {
+    if(pressed2) {
+      //if(leftButtonPressed) {
+          end_angle_click1 = angle1; //Should be angle1/2
+          end_angle_click2 = angle2;
+      //}
+    }
     if(starting) {
+      //eyePos << 0.463, 0.239, 9.98;
       eyePos << 0, 0, 10;
+      starting = false;
     } else if(change) {
       eyePos << x_val, -y_val, -z_val;
     } else {
       eyePos << x_val, y_val, z_val;
     }
+    pressed2 = false;
   }
-  //eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2);
-  //eyePos << sin(vppos_x)*8, cos(vppos_y)*8, cos(vppos_x)*8;
-  //eyePos << 0, cos(vppos_y)*8, sin(vppos_y)*8; //JUST Y
-  //eyePos << sin(vppos_x)*8, 0, cos(vppos_x)*8; //JUST X
 
   cout << "10*sin(initial1)*sin(initial2)=" << 10*sin(initial1)*sin(initial2) << endl;
   cout << "10*cos(initial1)=" << 10*cos(initial1) << endl;
@@ -184,6 +235,8 @@ void OnTimer()
   cout << "vppos_y=" << vppos_y << endl;
   cout << "initial1=" << initial1 << endl;
   cout << "initial2=" << initial2 << endl;
+  cout << "init_click1=" << init_click1 << endl;
+  cout << "init_click2=" << init_click2 << endl;
   cout << "x_val=" << x_val << endl;
   cout << "y_val=" << y_val << endl;
   cout << "z_val=" << z_val << endl;
@@ -209,15 +262,10 @@ void OnTimer()
   Mv = Mvrot*xyz_1s; //Mcam
   M = Mo*Mp*Mv;
   //cout << "rot_val" << rot_val << endl;
-  //Testing for rotation direction around y axis
-  if (change == false && rot_val < 1) {
-    rot_val += rotateSpeed;
-  } else {
-    rot_val -= rotateSpeed;
-    change = true;
-  }
-  initial1 = asin(vppos_x/p_dist);
-  initial2 = acos(vppos_y/p_dist);
+
+  cout << "leftButtonPressed=" << leftButtonPressed << endl;
+  cout << "end_angle_click1=" << end_angle_click1 << endl;
+  cout << "end_angle_click2=" << end_angle_click2 << endl;
 }
 
 int main(int, char **){
