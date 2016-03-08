@@ -101,9 +101,6 @@ void MouseButton(MouseButtons mouseButton, bool press)
   if (mouseButton == LeftButton) {
       if (press == true) {
         leftButtonPressed = true;
-        //maybe init init_click2 here
-        //initial1 = asin(vppos_x/p_dist);
-        //initial2 = acos(vppos_y/p_dist);
         init_click1 = asin(vppos_x/p_dist); //To get the starting initial angle when the click happens
         init_click2 = acos(vppos_y/p_dist);
         cout << "In HERE!!!" << endl;
@@ -129,47 +126,24 @@ void KeyPress(char keychar)
   if(keychar == 'R') rotateCW = !rotateCW;
 }
 
-void DrawCube(float x_center, float y_center, float z_center) {
-  //canvas.AddLine(x_center + lbn(0), y_center + lbn(1), z_center + lbn(2), x_center + rbn(0), y_center + rbn(1), z_center + rbn(2));
-  //canvas.AddLine(x_center + lbn(0), y_center + lbn(1), z_center + lbn(2), x_center + ltn(0), y_center + ltn(1), z_center + ltn(2));
-  //canvas.AddLine(x_center + lbn(0), y_center + lbn(1), z_center + lbn(2), x_center + lbf(0), y_center + lbf(1), z_center + lbf(2));
-
-  //canvas.AddLine(0, 0, 0, 0.3, 0, 0);
-  //canvas.AddLine(0, 0, 0, 0, 0.5, 0);
-}
-
 void OnPaint()
 {
   canvas.Clear(); //Clears canvas
-  //if (leftButtonPressed == true) {
-    //DrawCube(0,0,0);//vppos_x, vppos_y);
-  //}
   for(int i=0; i < 24; i+=2) {
-    //cout << "Vertices4d[i]=" << Vertices4d[i] << endl;
-    //cout << "Vertices4d[i+1]=" << Vertices4d[i+1] << endl;
-    //cout << "M=" << M << endl;
     p = M*Vertices4d[i];
     q = M*Vertices4d[i+1];
-    //cout << "p=" << p << endl;
-    //cout << "q=" << q << endl;
     float ph = p(2)/n;
     float qh = q(2)/n;
-    //cout << "ph=" << ph << endl;
-    //cout << "qh=" << qh << endl;
 
     canvas.AddLine(p(0)/ph, p(1)/ph, q(0)/qh, q(1)/qh);
-    //canvas.AddLine(0,0,.8,0); //Goes right
-    //canvas.AddLine(0,0,0,.8); //Goes up
   }
 }
 
 void OnTimer() {
   //http://mathinsight.org/spherical_coordinates; CAREFUL: Had to change to their coordinate systems
   //eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2); //0, 0, 15; //0, 0, 2;
-
   initial1 = asin(vppos_x/p_dist);
   initial2 = acos(vppos_y/p_dist);
-
 
   if(initial1 != init_click1 && (pressed2==true || pressedR==true)) {
     angle1 = (initial1 - init_click1) + end_angle_click1;
@@ -182,7 +156,6 @@ void OnTimer() {
   }
 
   if(leftButtonPressed) {
-    //From before(end_angle_click1&end_angle_click2) and add it to them i believe this may work
     x_val = p_dist*sin(angle2)*sin(angle1);//p_dist*sin(initial2)*sin(initial1);
     y_val = p_dist*cos(angle2);//p_dist*cos(initial2);
     z_val = p_dist*sin(angle2)*cos(angle1);//p_dist*sin(initial2)*cos(initial1);
@@ -200,21 +173,23 @@ void OnTimer() {
     y_val = p_dist*cos(angle2);//p_dist*cos(initial2);
     z_val = p_dist*sin(angle2)*cos(angle1);//p_dist*sin(initial2)*cos(initial1);
     eyePos << x_val, -y_val, -z_val;
-    change = true; //had to change because this also changes the positioning
+    change = true;
     pressedR = true;
   } else {
     if(pressed2 || pressedR) {
-      //if(leftButtonPressed) {
           end_angle_click1 = angle1; //Should be angle1/2
           end_angle_click2 = angle2;
           end_x_val = x_val;//p_dist*sin(end_angle_click2)*sin(end_angle_click1);
           end_y_val = -y_val;//p_dist*cos(end_angle_click2);
           end_z_val = -z_val;//p_dist*sin(end_angle_click2)*cos(end_angle_click1);
-      //}
     }
     if(starting) {
-      //eyePos << 0.463, 0.239, 9.98;
-      eyePos << 0, 0, 10;
+      end_angle_click1 = 0.000867082;//0.00115745;
+      end_angle_click2 = 1.61556;//1.6061;
+      x_val = p_dist*sin(end_angle_click2)*sin(end_angle_click1);
+      y_val = p_dist*cos(end_angle_click2);
+      z_val = p_dist*sin(end_angle_click2)*cos(end_angle_click1);
+      eyePos << x_val, -y_val, -z_val;//0, 0, 10;
       starting = false;
     } else if(change) {
       eyePos << x_val, -y_val, -z_val;
@@ -225,11 +200,6 @@ void OnTimer() {
     pressedR = false;
   }
 
-  //cout << "10*sin(initial1)*sin(initial2)=" << 10*sin(initial1)*sin(initial2) << endl;
-  //cout << "10*cos(initial1)=" << 10*cos(initial1) << endl;
-  //cout << "10*sin(initial1)*cos(initial2)=" << 10*sin(initial1)*cos(initial2) << endl;
-  //cout << "vppos_x=" << vppos_x << endl;
-  //cout << "vppos_y=" << vppos_y << endl;
   cout << "initial1=" << initial1 << endl;
   cout << "initial2=" << initial2 << endl;
   cout << "init_click1=" << init_click1 << endl;
@@ -240,6 +210,8 @@ void OnTimer() {
   cout << "end_x_val=" << end_x_val << endl;
   cout << "end_y_val=" << end_y_val << endl;
   cout << "end_z_val=" << end_z_val << endl;
+  cout << "end_angle_click1=" << end_angle_click1 << endl;
+  cout << "end_angle_click2=" << end_angle_click2 << endl;
 
   //Normalize eyePos
   gaze = -(eyePos.normalized());//(eyePos / sqrt(pow(eyePos(0), 2) + pow(eyePos(1), 2) + pow(eyePos(2), 2)))*-1;
@@ -261,11 +233,6 @@ void OnTimer() {
             0, 0, 0, 1;
   Mv = Mvrot*xyz_1s; //Mcam
   M = Mo*Mp*Mv;
-  //cout << "rot_val" << rot_val << endl;
-
-  //cout << "leftButtonPressed=" << leftButtonPressed << endl;
-  //cout << "end_angle_click1=" << end_angle_click1 << endl;
-  //cout << "end_angle_click2=" << end_angle_click2 << endl;
 }
 
 int main(int, char **){
@@ -300,14 +267,6 @@ int main(int, char **){
           0, 2/(t-b), 0, -((t+b)/(t-b)),
           0, 0, 2/(n-f), -((n+f)/(n-f)),
           0, 0, 0, 1;
-  /*Morth << 2/(.5-(-.5)), 0, 0, -((.5+(-.5)) / (.5-(-.5))),
-           0, 2/(.5-(-.5)), 0, -((.5+(-.5)) / (.5-(-.5))),
-           0, 0, 2/(-.25-.25), -((-.25+.25) / (-.25-.25)),
-           0, 0, 0, 1;*/
-  /*Mvp << -.25/2, 0, 0, (-.25-1)/2,
-         0, -.5/2, 0, (-.5-1)/2,
-         0, 0, 1, 0,
-         0, 0, 0, 1;*/
   Mo = Morth;
 
   Vertices4d.push_back(lbn);
@@ -346,6 +305,5 @@ int main(int, char **){
     //Do our initialization
     InitializeGL();
     canvas.Show();
-
     return 0;
 }
