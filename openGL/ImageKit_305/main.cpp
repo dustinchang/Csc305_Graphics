@@ -10,8 +10,6 @@ unsigned int height = 512;
 
 float vppos_x = 0;
 float vppos_y = 0;
-float y_pos = 0;
-float x_pos = 0;
 bool leftButtonPressed = false;
 bool rightButtonPressed = false;
 //Rotation
@@ -62,6 +60,7 @@ float f;
 bool starting = true;
 bool change = false;
 bool pressed2 = false;
+bool pressedR = false;
 bool x_dir = true;
 bool y_dir = true;
 bool z_dir = true;
@@ -72,9 +71,6 @@ float p_dist = 10;
 float x_val = p_dist*sin(initial2)*sin(initial1);
 float y_val = p_dist*cos(initial2);
 float z_val = p_dist*sin(initial2)*cos(initial1);
-float x_val_click;
-float y_val_click;
-float z_val_click;
 float end_x_val;
 float end_y_val;
 float end_z_val;
@@ -110,17 +106,14 @@ void MouseButton(MouseButtons mouseButton, bool press)
         //initial2 = acos(vppos_y/p_dist);
         init_click1 = asin(vppos_x/p_dist); //To get the starting initial angle when the click happens
         init_click2 = acos(vppos_y/p_dist);
-        x_val_click = p_dist*sin(initial2)*sin(initial1);//x_val;
-        y_val_click = p_dist*cos(initial2);//y_val;
-        z_val_click = p_dist*sin(initial2)*cos(initial1);//z_val;
-        x_pos = vppos_x;
-        y_pos = vppos_y;
         cout << "In HERE!!!" << endl;
       }
       else leftButtonPressed = false;
   }
   if(mouseButton == RightButton) {
     if(press == true) {
+      init_click1 = asin(vppos_x/p_dist); //To get the starting initial angle when the click happens
+      init_click2 = acos(vppos_y/p_dist);
       rightButtonPressed = true;
       r_y_pressed = vppos_y;  //Set right mouseButton start point
     }
@@ -171,16 +164,14 @@ void OnPaint()
 }
 
 void OnTimer() {
-  //http://mathinsight.org/spherical_coordinates
-  //Careful: Had to change to their coordinate systems
+  //http://mathinsight.org/spherical_coordinates; CAREFUL: Had to change to their coordinate systems
   //eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2); //0, 0, 15; //0, 0, 2;
-  //MAYBE use a start and end angle
 
   initial1 = asin(vppos_x/p_dist);
   initial2 = acos(vppos_y/p_dist);
 
 
-  if(initial1 != init_click1 && pressed2==true) {
+  if(initial1 != init_click1 && (pressed2==true || pressedR==true)) {
     angle1 = (initial1 - init_click1) + end_angle_click1;
     angle2 = (initial2 - init_click2) + end_angle_click2;
     cout << "IN IF!!!" << endl;
@@ -190,70 +181,29 @@ void OnTimer() {
     cout << "IN ELSE!!!" << endl;
   }
 
-  //x_val_click = p_dist*sin(angle2)*sin(angle1);
-  //y_val_click = p_dist*cos(angle2);
-  //z_val_click = p_dist*sin(angle2)*cos(angle1);
-
   if(leftButtonPressed) {
     //From before(end_angle_click1&end_angle_click2) and add it to them i believe this may work
     x_val = p_dist*sin(angle2)*sin(angle1);//p_dist*sin(initial2)*sin(initial1);
     y_val = p_dist*cos(angle2);//p_dist*cos(initial2);
     z_val = p_dist*sin(angle2)*cos(angle1);//p_dist*sin(initial2)*cos(initial1);
-    //TODO INSTEAD OF XYZ, maybe just change angle from pos/neg to opposite once hits the max Y part
-    //TODO HERE set limits for the x,y,z coordinates and calculate from there
-    //if(initial1 != init_click1 && pressed2==true) {
-    //  if(x_dir) { x_val = (end_x_val - (x_val - x_val_click)); }
-    //  else { x_val = ((x_val - x_val_click) + end_x_val); }
-    //  if(y_dir) { y_val = ((y_val - y_val_click) - end_y_val); }
-    //  else { y_val = ((y_val - y_val_click) + end_y_val); }
-    //  if(z_dir) { z_val = ((z_val - z_val_click) - end_z_val); }
-    //  else { z_val = ((z_val - z_val_click) + end_z_val); }
-    //} else {
-    //  x_val = end_x_val;
-    //  y_val = end_y_val;
-    //  z_val = end_z_val;
-    //}
-    if(x_val >= 9.99999) {
-      x_dir = false;
-      x_val = 9.99999 - (x_val - 9.99999);
-    } else if(x_val <= -9.99999) {
-      x_dir = true;
-      x_val = -9.99999 + (9.99999 - x_val);
-    }
-    if(y_val >= 9.99999) {
-      y_dir = false;
-      y_val = 9.99999 - (y_val - 9.99999);
-    } else if(y_val <= -9.99999) {
-      y_dir = true;
-      y_val = -9.99999 + (9.99999 - y_val);
-    }
-    if(z_val >= 9.99999) {
-      z_dir = false;
-      z_val = 9.99999 - (z_val - 9.99999);
-    } else if(z_val <= -9.99999) {
-      z_dir = true;
-      z_val = -9.99999 + (9.99999 - z_val);
-    }
 
     eyePos << x_val, -y_val, -z_val;
     change = true;
-    x_pos = vppos_x;
-    y_pos = vppos_y;
 
-    //eyePos << p_dist*sin(initial2)*sin(initial1), p_dist*cos(initial2), p_dist*sin(initial2)*cos(initial1);  //Works for x and y direction but inverted
     if(initial1 != init_click1) {
       pressed2 = true;
     }
+    pressedR = false;
   } else if(rightButtonPressed) {
-    p_dist -= (r_y_pressed-vppos_y)*.2;  //TODO in mouseButton as soon as right mouseButton pressed, set a value of that y and have vppos_y +- to that to possibly get a more accurate inc/dec by moving mouse up/down
-    x_val = p_dist*sin(initial2)*sin(initial1);
-    y_val = p_dist*cos(initial2);
-    z_val = p_dist*sin(initial2)*cos(initial1);
-    //eyePos << p_dist*sin(initial2)*sin(initial1), p_dist*cos(initial2), p_dist*sin(initial2)*cos(initial1);
-    eyePos << x_val, y_val, z_val;
-    change = false;
+    p_dist += (r_y_pressed-vppos_y)*.2;  //TODO in mouseButton as soon as right mouseButton pressed, set a value of that y and have vppos_y +- to that to possibly get a more accurate inc/dec by moving mouse up/down
+    x_val = p_dist*sin(angle2)*sin(angle1);//p_dist*sin(initial2)*sin(initial1);
+    y_val = p_dist*cos(angle2);//p_dist*cos(initial2);
+    z_val = p_dist*sin(angle2)*cos(angle1);//p_dist*sin(initial2)*cos(initial1);
+    eyePos << x_val, -y_val, -z_val;
+    change = true; //had to change because this also changes the positioning
+    pressedR = true;
   } else {
-    if(pressed2) {
+    if(pressed2 || pressedR) {
       //if(leftButtonPressed) {
           end_angle_click1 = angle1; //Should be angle1/2
           end_angle_click2 = angle2;
@@ -272,6 +222,7 @@ void OnTimer() {
       eyePos << x_val, y_val, z_val;
     }
     pressed2 = false;
+    pressedR = false;
   }
 
   //cout << "10*sin(initial1)*sin(initial2)=" << 10*sin(initial1)*sin(initial2) << endl;
@@ -286,9 +237,6 @@ void OnTimer() {
   cout << "x_val=" << x_val << endl;
   cout << "y_val=" << y_val << endl;
   cout << "z_val=" << z_val << endl;
-  cout << "x_val_click=" << x_val_click << endl;
-  cout << "y_val_click=" << y_val_click << endl;
-  cout << "z_val_click=" << z_val_click << endl;
   cout << "end_x_val=" << end_x_val << endl;
   cout << "end_y_val=" << end_y_val << endl;
   cout << "end_z_val=" << end_z_val << endl;
