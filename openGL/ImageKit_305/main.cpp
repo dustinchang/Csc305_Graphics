@@ -62,6 +62,9 @@ float f;
 bool starting = true;
 bool change = false;
 bool pressed2 = false;
+bool x_dir = true;
+bool y_dir = true;
+bool z_dir = true;
 float r_y_pressed; //For when the RightButton is clicked set the y of vppos_y for starting point
 float initial1 = 0;
 float initial2 = 0;
@@ -187,29 +190,51 @@ void OnTimer() {
     cout << "IN ELSE!!!" << endl;
   }
 
-  x_val_click = p_dist*sin(angle2)*sin(angle1);
-  y_val_click = p_dist*cos(angle2);
-  z_val_click = p_dist*sin(angle2)*cos(angle1);
+  //x_val_click = p_dist*sin(angle2)*sin(angle1);
+  //y_val_click = p_dist*cos(angle2);
+  //z_val_click = p_dist*sin(angle2)*cos(angle1);
 
   if(leftButtonPressed) {
     //From before(end_angle_click1&end_angle_click2) and add it to them i believe this may work
-    x_val = p_dist*sin(angle2)*sin(angle1);//p_dist*sin(angle2)*sin(angle1);
-    y_val = p_dist*cos(angle2);//p_dist*cos(angle2);
-    z_val = p_dist*sin(angle2)*cos(angle1);//p_dist*sin(angle2)*cos(angle1);
-
+    x_val = p_dist*sin(angle2)*sin(angle1);//p_dist*sin(initial2)*sin(initial1);
+    y_val = p_dist*cos(angle2);//p_dist*cos(initial2);
+    z_val = p_dist*sin(angle2)*cos(angle1);//p_dist*sin(initial2)*cos(initial1);
+    //TODO INSTEAD OF XYZ, maybe just change angle from pos/neg to opposite once hits the max Y part
     //TODO HERE set limits for the x,y,z coordinates and calculate from there
     //if(initial1 != init_click1 && pressed2==true) {
-    //  x_val = ((x_val - x_val_click) + end_x_val);
-    //  y_val = 0;//((y_val - y_val_click) + end_y_val);
-    //  z_val = ((z_val - z_val_click) + end_z_val);
+    //  if(x_dir) { x_val = (end_x_val - (x_val - x_val_click)); }
+    //  else { x_val = ((x_val - x_val_click) + end_x_val); }
+    //  if(y_dir) { y_val = ((y_val - y_val_click) - end_y_val); }
+    //  else { y_val = ((y_val - y_val_click) + end_y_val); }
+    //  if(z_dir) { z_val = ((z_val - z_val_click) - end_z_val); }
+    //  else { z_val = ((z_val - z_val_click) + end_z_val); }
     //} else {
     //  x_val = end_x_val;
     //  y_val = end_y_val;
     //  z_val = end_z_val;
     //}
-    //eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2);
-    //eyePos << x_val_click + x_val, -y_val_click - y_val, -z_val_click - z_val;
-    //z_val += 3;
+    if(x_val >= 9.99999) {
+      x_dir = false;
+      x_val = 9.99999 - (x_val - 9.99999);
+    } else if(x_val <= -9.99999) {
+      x_dir = true;
+      x_val = -9.99999 + (9.99999 - x_val);
+    }
+    if(y_val >= 9.99999) {
+      y_dir = false;
+      y_val = 9.99999 - (y_val - 9.99999);
+    } else if(y_val <= -9.99999) {
+      y_dir = true;
+      y_val = -9.99999 + (9.99999 - y_val);
+    }
+    if(z_val >= 9.99999) {
+      z_dir = false;
+      z_val = 9.99999 - (z_val - 9.99999);
+    } else if(z_val <= -9.99999) {
+      z_dir = true;
+      z_val = -9.99999 + (9.99999 - z_val);
+    }
+
     eyePos << x_val, -y_val, -z_val;
     change = true;
     x_pos = vppos_x;
@@ -249,11 +274,11 @@ void OnTimer() {
     pressed2 = false;
   }
 
-  cout << "10*sin(initial1)*sin(initial2)=" << 10*sin(initial1)*sin(initial2) << endl;
-  cout << "10*cos(initial1)=" << 10*cos(initial1) << endl;
-  cout << "10*sin(initial1)*cos(initial2)=" << 10*sin(initial1)*cos(initial2) << endl;
-  cout << "vppos_x=" << vppos_x << endl;
-  cout << "vppos_y=" << vppos_y << endl;
+  //cout << "10*sin(initial1)*sin(initial2)=" << 10*sin(initial1)*sin(initial2) << endl;
+  //cout << "10*cos(initial1)=" << 10*cos(initial1) << endl;
+  //cout << "10*sin(initial1)*cos(initial2)=" << 10*sin(initial1)*cos(initial2) << endl;
+  //cout << "vppos_x=" << vppos_x << endl;
+  //cout << "vppos_y=" << vppos_y << endl;
   cout << "initial1=" << initial1 << endl;
   cout << "initial2=" << initial2 << endl;
   cout << "init_click1=" << init_click1 << endl;
@@ -261,6 +286,12 @@ void OnTimer() {
   cout << "x_val=" << x_val << endl;
   cout << "y_val=" << y_val << endl;
   cout << "z_val=" << z_val << endl;
+  cout << "x_val_click=" << x_val_click << endl;
+  cout << "y_val_click=" << y_val_click << endl;
+  cout << "z_val_click=" << z_val_click << endl;
+  cout << "end_x_val=" << end_x_val << endl;
+  cout << "end_y_val=" << end_y_val << endl;
+  cout << "end_z_val=" << end_z_val << endl;
 
   //Normalize eyePos
   gaze = -(eyePos.normalized());//(eyePos / sqrt(pow(eyePos(0), 2) + pow(eyePos(1), 2) + pow(eyePos(2), 2)))*-1;
@@ -284,9 +315,9 @@ void OnTimer() {
   M = Mo*Mp*Mv;
   //cout << "rot_val" << rot_val << endl;
 
-  cout << "leftButtonPressed=" << leftButtonPressed << endl;
-  cout << "end_angle_click1=" << end_angle_click1 << endl;
-  cout << "end_angle_click2=" << end_angle_click2 << endl;
+  //cout << "leftButtonPressed=" << leftButtonPressed << endl;
+  //cout << "end_angle_click1=" << end_angle_click1 << endl;
+  //cout << "end_angle_click2=" << end_angle_click2 << endl;
 }
 
 int main(int, char **){
