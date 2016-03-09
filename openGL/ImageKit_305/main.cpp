@@ -139,6 +139,7 @@ void OnPaint()
   }
 }
 
+//Tutorial opengl-tutorial.org/beginners-tutorials/tutorial-3-matrices/
 void OnTimer() {
   //http://mathinsight.org/spherical_coordinates; CAREFUL: Had to change to their coordinate systems
   //eyePos << 10*sin(initial1)*sin(initial2), 10*cos(initial1), 10*sin(initial1)*cos(initial2); //0, 0, 15; //0, 0, 2;
