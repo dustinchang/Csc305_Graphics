@@ -58,6 +58,11 @@ const GLfloat vpoint[] = {
   .5f, .5f, -.5f //lower half of back square
 };
 
+/*R[0][0] =  cos(rot);\
+R[0][1] =  sin(rot);\
+R[1][0] = -sin(rot);\
+R[1][1] =  cos(rot);\*/
+
 const char * vshader_square = "\
 #version 330 core \n\
 in vec3 vpoint; \
@@ -65,10 +70,11 @@ uniform float rotation;\
 \
 mat4 RotationMatrix(float rot){\
   mat3 R = mat3(1);\
-  R[0][0] =  cos(rot);\
-  R[0][1] =  sin(rot);\
-  R[1][0] = -sin(rot);\
-  R[1][1] =  cos(rot);\
+  R[0][0] = 1;\
+  R[1][1] = cos(rot);\
+  R[1][2] = -sin(rot);\
+  R[2][1] = sin(rot);\
+  R[2][2] = cos(rot);\
   return mat4(R); } \
 void main() { \
   gl_Position = RotationMatrix(rotation) * vec4(vpoint, 1); \
