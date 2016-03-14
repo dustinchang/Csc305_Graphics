@@ -1,9 +1,33 @@
 //Lab5
 #include "Canvas.h"
 #include <math.h>
+#include <iostream>
+#include "Eigen/Dense"
+using namespace std;
+using namespace Eigen;
 
 unsigned int width = 512;
 unsigned int height = 512;
+float vppos_x = 0;
+float vppos_y = 0;
+float n;
+float f;
+
+Matrix4d Mp;
+Matrix4d Morth;
+Matrix4d Mo;
+Matrix4d Mvrot;
+Matrix4d xyz_1s;
+Matrix4d Mv;
+Matrix4d M;
+
+Vector3d eyePos;
+Vector3d gaze;
+Vector3d viewUp;
+Vector3d U;
+Vector3d V;
+Vector3d W;
+Vector3d txW;
 
 Canvas canvas;
 
@@ -121,27 +145,21 @@ void InitializeGL()
                         0);
   RotBindingID = glGetUniformLocation(ProgramID, "rotation");
 
-
-
 }
 
-void MouseMove(double x, double y)
-{
-
+void MouseMove(double x, double y) {
+  //the pointer has moved
+  vppos_x = (float)(x) / 256 - 1;
+  vppos_y = 1 - (float)(y) / 256;
 }
 
-void MouseButton(MouseButtons mouseButton, bool press)
-{
-
+void MouseButton(MouseButtons mouseButton, bool press) {
 }
 
-void KeyPress(char keychar)
-{
-
+void KeyPress(char keychar) {
 }
 
-void OnPaint()
-{
+void OnPaint() {
   glClear(GL_COLOR_BUFFER_BIT);
   //Context
   glUseProgram(ProgramID);
@@ -154,12 +172,49 @@ void OnPaint()
   glBindVertexArray(0);
 }
 
-void OnTimer()
-{
+void OnTimer() {
   Rotation += RotatingSpeed;
+  //Nomalize eyePos
+  gaze = -(eyePos.normalized());
+  //Setup W, U, V Vectors
+  W = -(gaze.normalized());
+  txW = viewUp.cross(W);
+  U = (txW).normalized();
+  V = (W.cross(U)).normalized();
+  //Setup for Mv
+  Mvrot << U(0), U(1), U(2), 0,
+             V(0), V(1), V(2), 0,
+             W(0), W(1), W(2), 0,
+             0, 0, 0, 1;
+  xyz_1s << 1, 0, 0, -eyePos(0),
+            0, 1, 0, -eyePos(1),
+            0, 0, 1, -eyePos(2),
+            0, 0, 0, 1;
+  Mv = Mvrot*xyz_1s; //Mcam
+  M = Mo*Mp*Mv;
 }
 
 int main(int, char **){
+  //Create the Perspective Matrix
+  n = -1.0f;
+  f = -10.0f;
+  Mp << n, 0, 0, 0,
+        0, n, 0, 0,
+        0, 0, (n+f), -(f*n),
+        0, 0, 1, 0;
+  //View positions
+  viewUp << 0, 1, 0;
+  float t = 1.0f;
+  float r = 1.0f;
+  float b = -1.0f;
+  float l = -1.0f;
+  Morth << 2/(r-l), 0, 0, -((r+l)/(r-l)),
+          0, 2/(t-b), 0, -((t+b)/(t-b)),
+          0, 0, 2/(n-f), -((n+f)/(n-f)),
+          0, 0, 0, 1;
+  Mo = Morth;
+
+
     //Link the call backs
     canvas.SetMouseMove(MouseMove);
     canvas.SetMouseButton(MouseButton);
@@ -171,6 +226,5 @@ int main(int, char **){
     //Do our initialization
     InitializeGL();
     canvas.Show();
-
     return 0;
 }
