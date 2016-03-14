@@ -104,7 +104,7 @@ mat4 RotationMatrix(float rot){\
   R[2][2] = cos(rot);\
   return mat4(R); } \
 void main() { \
-  gl_Position = pers*view * vec4(vpoint, 1); \
+  gl_Position = orth*pers*view * RotationMatrix(rotation) * vec4(vpoint, 1); \
 }";
 //Fragment shader
 const char * fshader_square = "\
@@ -206,7 +206,7 @@ void OnPaint() {
 }
 
 void OnTimer() {
-  eyePos << 0, 0, 15;
+  eyePos << 0, 0, 3;
   Rotation += RotatingSpeed;
   //Nomalize eyePos
   gaze = -(eyePos.normalized());
@@ -227,13 +227,14 @@ void OnTimer() {
   Mv = Mvrot*xyz_1s; //Mcam
   M = Morth*Mp*Mv;
   cout << "Mv" << Mv << endl;
+  cout << "M" << M << endl;
   glUseProgram(ProgramID);
 }
 
 int main(int, char **){
   //Create the Perspective Matrix
   n = -1.0f;
-  f = -50.0f;
+  f = -10.0f;
   viewUp << 0, 1, 0;
 
 

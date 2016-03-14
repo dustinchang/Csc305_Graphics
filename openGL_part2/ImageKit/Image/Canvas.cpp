@@ -85,7 +85,7 @@ Canvas::Canvas()
     pfun_timer = NULL;
     clean = true;
 
-    BK_r = BK_g = BK_b = 0;
+    BK_r = BK_g = BK_b = .5;
     Line_r = Line_g = Line_b = 1;
 }
 
