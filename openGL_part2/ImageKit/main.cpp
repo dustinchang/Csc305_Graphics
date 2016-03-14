@@ -13,21 +13,20 @@ float vppos_y = 0;
 float n;
 float f;
 
-Matrix4d Mp;
-Matrix4d Morth;
-Matrix4d Mo;
-Matrix4d Mvrot;
-Matrix4d xyz_1s;
-Matrix4d Mv;
-Matrix4d M;
+Matrix4f Mp;
+Matrix4f Morth;
+Matrix4f Mvrot;
+Matrix4f xyz_1s;
+Matrix4f Mv;
+Matrix4f M;
 
-Vector3d eyePos;
-Vector3d gaze;
-Vector3d viewUp;
-Vector3d U;
-Vector3d V;
-Vector3d W;
-Vector3d txW;
+Vector3f eyePos;
+Vector3f gaze;
+Vector3f viewUp;
+Vector3f U;
+Vector3f V;
+Vector3f W;
+Vector3f txW;
 
 Canvas canvas;
 
@@ -91,6 +90,10 @@ const char * vshader_square = "\
 #version 330 core \n\
 in vec3 vpoint; \
 uniform float rotation;\
+uniform mat4 view;\
+uniform mat4 pers;\
+uniform mat4 orth;\
+uniform mat4 final_Matrix;\
 \
 mat4 RotationMatrix(float rot){\
   mat3 R = mat3(1);\
@@ -101,7 +104,7 @@ mat4 RotationMatrix(float rot){\
   R[2][2] = cos(rot);\
   return mat4(R); } \
 void main() { \
-  gl_Position = RotationMatrix(rotation) * vec4(vpoint, 1); \
+  gl_Position = pers*view * vec4(vpoint, 1); \
 }";
 //Fragment shader
 const char * fshader_square = "\
@@ -143,7 +146,26 @@ void InitializeGL()
                         false,
                         0,
                         0);
+
+                        Mp << 1, 0, 0, 0,
+                              0, 1, 0, 0,
+                              0, 0, (n+f)/n, -f,
+                              0, 0, 1/n, 0;
+                        //View positions
+
+                        float t = 1.0f;
+                        float r = 1.0f;
+                        float b = -1.0f;
+                        float l = -1.0f;
+                        Morth << 2/(r-l), 0, 0, -((r+l)/2),
+                                0, 2/(t-b), 0, -((t+b)/2),
+                                0, 0, 2/(n-f), -((n+f)/(n-f)),
+                                0, 0, 0, 1;
+    cout << "HERE" << endl;
+    cout << Morth << endl;
+    cout << Mp << endl;
   RotBindingID = glGetUniformLocation(ProgramID, "rotation");
+
 
 }
 
@@ -164,6 +186,17 @@ void OnPaint() {
   //Context
   glUseProgram(ProgramID);
   glBindVertexArray(VertexArrayID);
+
+  GLuint m_view = glGetUniformLocation(ProgramID, "view");
+  GLuint m_pers = glGetUniformLocation(ProgramID, "pers");
+  GLuint m_orth = glGetUniformLocation(ProgramID, "orth");
+  glUniformMatrix4fv(m_view, 1, false, Mv.data());
+  glUniformMatrix4fv(m_pers, 1, false, Mp.data());
+  glUniformMatrix4fv(m_orth, 1, false, Morth.data());
+
+
+  GLuint fin_matrix = glGetUniformLocation(ProgramID, "final_Matrix");
+  glUniformMatrix4fv(fin_matrix, 1, false, M.data());
   //Draw
   glUniform1f(RotBindingID, Rotation);
   glDrawArrays(GL_TRIANGLES, 0, 12*3); //6 vertices cause 2 triangle
@@ -173,6 +206,7 @@ void OnPaint() {
 }
 
 void OnTimer() {
+  eyePos << 0, 0, 15;
   Rotation += RotatingSpeed;
   //Nomalize eyePos
   gaze = -(eyePos.normalized());
@@ -191,28 +225,17 @@ void OnTimer() {
             0, 0, 1, -eyePos(2),
             0, 0, 0, 1;
   Mv = Mvrot*xyz_1s; //Mcam
-  M = Mo*Mp*Mv;
+  M = Morth*Mp*Mv;
+  cout << "Mv" << Mv << endl;
+  glUseProgram(ProgramID);
 }
 
 int main(int, char **){
   //Create the Perspective Matrix
   n = -1.0f;
-  f = -10.0f;
-  Mp << n, 0, 0, 0,
-        0, n, 0, 0,
-        0, 0, (n+f), -(f*n),
-        0, 0, 1, 0;
-  //View positions
+  f = -50.0f;
   viewUp << 0, 1, 0;
-  float t = 1.0f;
-  float r = 1.0f;
-  float b = -1.0f;
-  float l = -1.0f;
-  Morth << 2/(r-l), 0, 0, -((r+l)/(r-l)),
-          0, 2/(t-b), 0, -((t+b)/(t-b)),
-          0, 0, 2/(n-f), -((n+f)/(n-f)),
-          0, 0, 0, 1;
-  Mo = Morth;
+
 
 
     //Link the call backs
