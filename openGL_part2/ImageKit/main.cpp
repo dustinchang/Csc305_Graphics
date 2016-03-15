@@ -12,6 +12,28 @@ float vppos_x = 0;
 float vppos_y = 0;
 float n;
 float f;
+float p_dist = 3;
+float initial_clickX = 0;
+float initial_clickY = 0;
+float initial1 = 0;
+float initial2 = 0;
+float r_y_pressed;
+float end_angle_click1 = 0;
+float end_angle_click2 = 0;
+float end_x_val;
+float end_y_val;
+float end_z_val;
+float angle1 = 0;
+float angle2 = 0;
+float x_val = p_dist*sin(initial2)*sin(initial1);
+float y_val = p_dist*cos(initial2);
+float z_val = p_dist*sin(initial2)*cos(initial1);
+bool starting = true;
+bool leftButtonPressed = false;
+bool rightButtonPressed = false;
+bool pressed2 = false;
+bool pressedR = false;
+bool change = false;
 
 Matrix4f Mp;
 Matrix4f Morth;
@@ -104,7 +126,7 @@ mat4 RotationMatrix(float rot){\
   R[2][2] = cos(rot);\
   return mat4(R); } \
 void main() { \
-  gl_Position = orth*pers*view * RotationMatrix(rotation) * vec4(vpoint, 1); \
+  gl_Position = orth*pers*view  * vec4(vpoint, 1); \
 }";
 //Fragment shader
 const char * fshader_square = "\
@@ -114,6 +136,7 @@ void main() { color = vec3(1, 0, 0);}";
 
 float Rotation = 0;
 float RotatingSpeed = 0.02;
+float RotatingAngle = M_PI * 0.3;
 
 GLuint VertexArrayID = 0;
 GLuint ProgramID = 0;
@@ -147,26 +170,20 @@ void InitializeGL()
                         0,
                         0);
 
-                        Mp << 1, 0, 0, 0,
-                              0, 1, 0, 0,
-                              0, 0, (n+f)/n, -f,
-                              0, 0, 1/n, 0;
-                        //View positions
-
-                        float t = 1.0f;
-                        float r = 1.0f;
-                        float b = -1.0f;
-                        float l = -1.0f;
-                        Morth << 2/(r-l), 0, 0, -((r+l)/2),
-                                0, 2/(t-b), 0, -((t+b)/2),
-                                0, 0, 2/(n-f), -((n+f)/(n-f)),
-                                0, 0, 0, 1;
-    cout << "HERE" << endl;
-    cout << Morth << endl;
-    cout << Mp << endl;
+  Mp << 1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, (n+f)/n, -f,
+        0, 0, 1/n, 0;
+  //View positions
+  float t = 1.0f;
+  float r = 1.0f;
+  float b = -1.0f;
+  float l = -1.0f;
+  Morth << 2/(r-l), 0, 0, -((r+l)/2),
+          0, 2/(t-b), 0, -((t+b)/2),
+          0, 0, 2/(n-f), -((n+f)/(n-f)),
+          0, 0, 0, 1;
   RotBindingID = glGetUniformLocation(ProgramID, "rotation");
-
-
 }
 
 void MouseMove(double x, double y) {
@@ -176,6 +193,25 @@ void MouseMove(double x, double y) {
 }
 
 void MouseButton(MouseButtons mouseButton, bool press) {
+  if(mouseButton == LeftButton) {
+    if(press == true) {
+      leftButtonPressed = true;
+      initial_clickX = asin(vppos_x/p_dist);
+      initial_clickY = acos(vppos_y/p_dist);
+    } else {
+      leftButtonPressed = false;
+    }
+  }
+  if(mouseButton == RightButton) {
+    if(press == true) {
+      rightButtonPressed = true;
+      initial_clickX = asin(vppos_x/p_dist); //To get the starting initial angle when the click happens
+      initial_clickY = acos(vppos_y/p_dist);
+      r_y_pressed = vppos_y; //Set right mouseButton start point
+    } else {
+      rightButtonPressed = false;
+    }
+  }
 }
 
 void KeyPress(char keychar) {
@@ -187,16 +223,16 @@ void OnPaint() {
   glUseProgram(ProgramID);
   glBindVertexArray(VertexArrayID);
 
+  //Additional matrices
   GLuint m_view = glGetUniformLocation(ProgramID, "view");
   GLuint m_pers = glGetUniformLocation(ProgramID, "pers");
   GLuint m_orth = glGetUniformLocation(ProgramID, "orth");
   glUniformMatrix4fv(m_view, 1, false, Mv.data());
   glUniformMatrix4fv(m_pers, 1, false, Mp.data());
   glUniformMatrix4fv(m_orth, 1, false, Morth.data());
-
-
   GLuint fin_matrix = glGetUniformLocation(ProgramID, "final_Matrix");
   glUniformMatrix4fv(fin_matrix, 1, false, M.data());
+
   //Draw
   glUniform1f(RotBindingID, Rotation);
   glDrawArrays(GL_TRIANGLES, 0, 12*3); //6 vertices cause 2 triangle
@@ -206,7 +242,66 @@ void OnPaint() {
 }
 
 void OnTimer() {
-  eyePos << 0, 0, 3;
+  initial1 = asin(vppos_x/p_dist);
+  initial2 = acos(vppos_y/p_dist);
+
+  if(initial1 != initial_clickX && (pressed2==true || pressedR==true)) {
+    angle1 = (initial1 - initial_clickX) + end_angle_click1;
+    angle2 = (initial2 - initial_clickY) + end_angle_click2;
+  } else {
+    angle1 = end_angle_click1;
+    angle2 = end_angle_click2;
+  }
+
+  if(leftButtonPressed) {
+    x_val = p_dist*sin(angle2)*sin(angle1);
+    y_val = p_dist*cos(angle2);
+    z_val = p_dist*sin(angle2)*cos(angle1);
+    eyePos << x_val, -y_val, -z_val;
+    change = true;
+    if(initial1 != initial_clickX) {
+      pressed2 = true;
+    }
+    pressedR = false;
+  } else if(rightButtonPressed) {
+    p_dist += (r_y_pressed-vppos_y)*.2;
+    x_val = p_dist*sin(angle2)*sin(angle1);//p_dist*sin(initial2)*sin(initial1);
+    y_val = p_dist*cos(angle2);//p_dist*cos(initial2);
+    z_val = p_dist*sin(angle2)*cos(angle1);//p_dist*sin(initial2)*cos(initial1);
+    eyePos << x_val, -y_val, -z_val;
+    change = true;
+    pressedR = true;
+  }
+
+  else {
+    if(pressed2 || pressedR) {
+          end_angle_click1 = angle1;
+          end_angle_click2 = angle2;
+          end_x_val = x_val;
+          end_y_val = -y_val;
+          end_z_val = -z_val;
+    }
+    if(starting) {
+      end_angle_click1 = 0.000867082;//0.00115745;
+      end_angle_click2 = 1.61556;//1.6061;
+      x_val = p_dist*sin(end_angle_click2)*sin(end_angle_click1);
+      y_val = p_dist*cos(end_angle_click2);
+      z_val = p_dist*sin(end_angle_click2)*cos(end_angle_click1);
+      eyePos << x_val, -y_val, -z_val;//0, 0, 10;
+      starting = false;
+    } else if(change) {
+      eyePos << x_val, -y_val, -z_val;
+    } else {
+      eyePos << x_val, y_val, z_val;
+    }
+    pressed2 = false;
+    pressedR = false;
+  }
+
+
+
+  ////////////BEFORE ADDING STUFF FOR Rotation
+  //eyePos << 0, 0, 3;
   Rotation += RotatingSpeed;
   //Nomalize eyePos
   gaze = -(eyePos.normalized());
@@ -226,8 +321,6 @@ void OnTimer() {
             0, 0, 0, 1;
   Mv = Mvrot*xyz_1s; //Mcam
   M = Morth*Mp*Mv;
-  cout << "Mv" << Mv << endl;
-  cout << "M" << M << endl;
   glUseProgram(ProgramID);
 }
 
@@ -236,8 +329,6 @@ int main(int, char **){
   n = -1.0f;
   f = -10.0f;
   viewUp << 0, 1, 0;
-
-
 
     //Link the call backs
     canvas.SetMouseMove(MouseMove);
