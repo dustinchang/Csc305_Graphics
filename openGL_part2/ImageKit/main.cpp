@@ -1,4 +1,3 @@
-//Lab5
 #include "Canvas.h"
 #include <math.h>
 #include <iostream>
@@ -12,7 +11,7 @@ float vppos_x = 0;
 float vppos_y = 0;
 float n;
 float f;
-float p_dist = 3;
+float p_dist = 5;
 float initial_clickX = 0;
 float initial_clickY = 0;
 float initial1 = 0;
@@ -103,11 +102,6 @@ const GLfloat vpoint[] = {
   .5f, .5f, -.5f //lower half of back square
 };
 
-/*R[0][0] =  cos(rot);\
-R[0][1] =  sin(rot);\
-R[1][0] = -sin(rot);\
-R[1][1] =  cos(rot);\*/
-
 const char * vshader_square = "\
 #version 330 core \n\
 in vec3 vpoint; \
@@ -126,7 +120,7 @@ mat4 RotationMatrix(float rot){\
   R[2][2] = cos(rot);\
   return mat4(R); } \
 void main() { \
-  gl_Position = orth*pers*view  * vec4(vpoint, 1); \
+  gl_Position = final_Matrix * vec4(vpoint, 1); \
 }";
 //Fragment shader
 const char * fshader_square = "\
@@ -169,7 +163,7 @@ void InitializeGL()
                         false,
                         0,
                         0);
-
+  RotBindingID = glGetUniformLocation(ProgramID, "rotation");
   Mp << 1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, (n+f)/n, -f,
@@ -183,7 +177,6 @@ void InitializeGL()
           0, 2/(t-b), 0, -((t+b)/2),
           0, 0, 2/(n-f), -((n+f)/(n-f)),
           0, 0, 0, 1;
-  RotBindingID = glGetUniformLocation(ProgramID, "rotation");
 }
 
 void MouseMove(double x, double y) {
@@ -242,9 +235,10 @@ void OnPaint() {
 }
 
 void OnTimer() {
+  //Top part just for rotation
   initial1 = asin(vppos_x/p_dist);
   initial2 = acos(vppos_y/p_dist);
-
+  //Cases for getting the current angles
   if(initial1 != initial_clickX && (pressed2==true || pressedR==true)) {
     angle1 = (initial1 - initial_clickX) + end_angle_click1;
     angle2 = (initial2 - initial_clickY) + end_angle_click2;
@@ -252,7 +246,7 @@ void OnTimer() {
     angle1 = end_angle_click1;
     angle2 = end_angle_click2;
   }
-
+  //Button press cases
   if(leftButtonPressed) {
     x_val = p_dist*sin(angle2)*sin(angle1);
     y_val = p_dist*cos(angle2);
@@ -265,15 +259,13 @@ void OnTimer() {
     pressedR = false;
   } else if(rightButtonPressed) {
     p_dist += (r_y_pressed-vppos_y)*.2;
-    x_val = p_dist*sin(angle2)*sin(angle1);//p_dist*sin(initial2)*sin(initial1);
-    y_val = p_dist*cos(angle2);//p_dist*cos(initial2);
-    z_val = p_dist*sin(angle2)*cos(angle1);//p_dist*sin(initial2)*cos(initial1);
+    x_val = p_dist*sin(angle2)*sin(angle1);
+    y_val = p_dist*cos(angle2);
+    z_val = p_dist*sin(angle2)*cos(angle1);
     eyePos << x_val, -y_val, -z_val;
     change = true;
     pressedR = true;
-  }
-
-  else {
+  } else {
     if(pressed2 || pressedR) {
           end_angle_click1 = angle1;
           end_angle_click2 = angle2;
@@ -282,12 +274,12 @@ void OnTimer() {
           end_z_val = -z_val;
     }
     if(starting) {
-      end_angle_click1 = 0.000867082;//0.00115745;
-      end_angle_click2 = 1.61556;//1.6061;
+      end_angle_click1 = 0.000867082;
+      end_angle_click2 = 1.61556;
       x_val = p_dist*sin(end_angle_click2)*sin(end_angle_click1);
       y_val = p_dist*cos(end_angle_click2);
       z_val = p_dist*sin(end_angle_click2)*cos(end_angle_click1);
-      eyePos << x_val, -y_val, -z_val;//0, 0, 10;
+      eyePos << x_val, -y_val, -z_val;
       starting = false;
     } else if(change) {
       eyePos << x_val, -y_val, -z_val;
@@ -298,12 +290,7 @@ void OnTimer() {
     pressedR = false;
   }
 
-
-
-  ////////////BEFORE ADDING STUFF FOR Rotation
-  //eyePos << 0, 0, 3;
-  Rotation += RotatingSpeed;
-  //Nomalize eyePos
+  //Calculations for matrices
   gaze = -(eyePos.normalized());
   //Setup W, U, V Vectors
   W = -(gaze.normalized());
