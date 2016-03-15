@@ -52,145 +52,97 @@ Vector3f txW;
 Canvas canvas;
 
 const GLfloat vpoint[] = {
-  //Near side
-  //-.5f, -.5f, 0.0f,
-  //0.5f, -.5f, 0.0f,
-  //-.5f, 0.5f, 0.0f, //upper half of the near square
-  //0.5f, -.5f, 0.0f,
-  //0.5f, 0.5f, 0.0f,
-  //-.5f, 0.5f, 0.0f //lower half of the near square
-  /*-.5f, -.5f, 0.5f,
-  -.5f, .5f, 0.5f,
-  .5f, .5f, 0.5f, //upper half of the near square
-  -.5f, -.5f, 0.5f,
-  .5f, -.5f, 0.5f,
-  .5f, .5f, 0.5f, //lower half of the near square
-  //Left side
-  -.5f, .5f, 0.5f,
-  -.5f, -.5f, 0.5f,
-  -.5f, -.5f, -.5f, //lower half of the left square
-  -.5f, .5f, 0.5f,
-  -.5f, .5f, -0.5f,
-  -.5f, -.5f, -.5f, //upper half of the left square
-  //Right side
-  .5f, .5f, .5f,
-  .5f, -.5f, .5f,
-  .5f, .5f, -.5f, //upper half of the right square
-  .5f, .5f, -.5f,
-  .5f, -.5f, .5f,
-  .5f, -.5f, -.5f, //lower half of the right square
-  //Top side
-  -.5f, .5f, .5f,
-  -.5f, .5f, -.5f,
-  .5f, .5f, -.5f, //upper half of top square
-  -.5f, .5f, .5f,
-  .5f, .5f, .5f,
-  .5f, .5f, -.5f, //lower half of top square
-  //Bottom side
-  -.5f, -.5f, -.5f,
-  -.5f, -.5f, .5f,
-  .5f, -.5f, .5f, //upper half of bottom square
-  -.5f, -.5f, -.5f,
-  .5f, -.5f, -.5f,
-  .5f, -.5f, .5f, //lower half of bottom square
-  //Back side
-  -.5f, -.5f, -.5f,
-  -.5f, .5f, -.5f,
-  .5f, .5f, -.5f, //upper half of back square
-  -.5f, -.5f, -.5f,
-  .5f, -.5f, -.5f,
-  .5f, .5f, -.5f*/ //lower half of back square
-    -0.5f,-0.5f,-0.5f,
-        -0.5f,-0.5f, 0.5f,
-        -0.5f, 0.5f, 0.5f,
-        0.5f, 0.5f,-0.5f,
-        -0.5f,-0.5f,-0.5f,
-        -0.5f, 0.5f,-0.5f,
+  -0.5f,-0.5f,-0.5f,
+  -0.5f,-0.5f, 0.5f,
+  -0.5f, 0.5f, 0.5f,
+  0.5f, 0.5f,-0.5f,
+  -0.5f,-0.5f,-0.5f,
+  -0.5f, 0.5f,-0.5f,
 
-        0.5f,-0.5f, 0.5f,
-        -0.5f,-0.5f,-0.5f,
-        0.5f,-0.5f,-0.5f,
-        0.5f, 0.5f,-0.5f,
-        0.5f,-0.5f,-0.5f,
-        -0.5f,-0.5f,-0.5f,
+  0.5f,-0.5f, 0.5f,
+  -0.5f,-0.5f,-0.5f,
+  0.5f,-0.5f,-0.5f,
+  0.5f, 0.5f,-0.5f,
+  0.5f,-0.5f,-0.5f,
+  -0.5f,-0.5f,-0.5f,
 
-        -0.5f,-0.5f,-0.5f,
-        -0.5f, 0.5f, 0.5f,
-        -0.5f, 0.5f,-0.5f,
-        0.5f,-0.5f, 0.5f,
-        -0.5f,-0.5f, 0.5f,
-        -0.5f,-0.5f,-0.5f,
+  -0.5f,-0.5f,-0.5f,
+  -0.5f, 0.5f, 0.5f,
+  -0.5f, 0.5f,-0.5f,
+  0.5f,-0.5f, 0.5f,
+  -0.5f,-0.5f, 0.5f,
+  -0.5f,-0.5f,-0.5f,
 
-        -0.5f, 0.5f, 0.5f,
-        -0.5f,-0.5f, 0.5f,
-        0.5f,-0.5f, 0.5f,
-        0.5f, 0.5f, 0.5f,
-        0.5f,-0.5f,-0.5f,
-        0.5f, 0.5f,-0.5f,
+  -0.5f, 0.5f, 0.5f,
+  -0.5f,-0.5f, 0.5f,
+  0.5f,-0.5f, 0.5f,
+  0.5f, 0.5f, 0.5f,
+  0.5f,-0.5f,-0.5f,
+  0.5f, 0.5f,-0.5f,
 
-        0.5f,-0.5f,-0.5f,
-        0.5f, 0.5f, 0.5f,
-        0.5f,-0.5f, 0.5f,
-        0.5f, 0.5f, 0.5f,
-        0.5f, 0.5f,-0.5f,
-        -0.5f, 0.5f,-0.5f,
+  0.5f,-0.5f,-0.5f,
+  0.5f, 0.5f, 0.5f,
+  0.5f,-0.5f, 0.5f,
+  0.5f, 0.5f, 0.5f,
+  0.5f, 0.5f,-0.5f,
+  -0.5f, 0.5f,-0.5f,
 
-        0.5f, 0.5f, 0.5f,
-        -0.5f, 0.5f,-0.5f,
-        -0.5f, 0.5f, 0.5f,
-        0.5f, 0.5f, 0.5f,
-        -0.5f, 0.5f, 0.5f,
-        0.5f,-0.5f, 0.5f
+  0.5f, 0.5f, 0.5f,
+  -0.5f, 0.5f,-0.5f,
+  -0.5f, 0.5f, 0.5f,
+  0.5f, 0.5f, 0.5f,
+  -0.5f, 0.5f, 0.5f,
+  0.5f,-0.5f, 0.5f
 };
 
 const GLfloat vtexcoord[] = {
-    1.0f, 1.0f,
-    0.0f, 1.0f,
-    0.0f, 0.0f, //upper half of the square
+  1.0f, 1.0f,
+  0.0f, 1.0f,
+  0.0f, 0.0f, //upper half of the square
 
-    0.0f, 0.0f,
-    1.0f, 1.0f,
-    1.0f, 0.0f, //lower half of the square
+  0.0f, 0.0f,
+  1.0f, 1.0f,
+  1.0f, 0.0f, //lower half of the square
 
-    0.0f, 0.0f,
-    1.0f, 1.0f,
-    1.0f, 0.0f,
+  0.0f, 0.0f,
+  1.0f, 1.0f,
+  1.0f, 0.0f,
 
-    0.0f, 0.0f,
-    0.0f, 1.0f,
-    1.0f, 1.0f,
+  0.0f, 0.0f,
+  0.0f, 1.0f,
+  1.0f, 1.0f,
 
-    1.0f, 1.0f,
-    0.0f, 0.0f,
-    1.0f, 0.0f,
+  1.0f, 1.0f,
+  0.0f, 0.0f,
+  1.0f, 0.0f,
 
-    0.0f, 0.0f,
-    0.0f, 1.0f,
-    1.0f, 1.0f,
+  0.0f, 0.0f,
+  0.0f, 1.0f,
+  1.0f, 1.0f,
 
-    0.0f, 0.0f,
-    0.0f, 1.0f,
-    1.0f, 1.0f,
+  0.0f, 0.0f,
+  0.0f, 1.0f,
+  1.0f, 1.0f,
 
-    0.0f, 0.0f,
-    1.0f, 1.0f,
-    1.0f, 0.0f,
+  0.0f, 0.0f,
+  1.0f, 1.0f,
+  1.0f, 0.0f,
 
-    1.0f, 1.0f,
-    0.0f, 0.0f,
-    0.0f, 1.0f,
+  1.0f, 1.0f,
+  0.0f, 0.0f,
+  0.0f, 1.0f,
 
-    0.0f, 0.0f,
-    0.0f, 1.0f,
-    1.0f, 1.0f,
+  0.0f, 0.0f,
+  0.0f, 1.0f,
+  1.0f, 1.0f,
 
-    0.0f, 0.0f,
-    1.0f, 1.0f,
-    1.0f, 0.0f,
+  0.0f, 0.0f,
+  1.0f, 1.0f,
+  1.0f, 0.0f,
 
-    1.0f, 0.0f,
-    0.0f, 0.0f,
-    1.0f, 1.0f,
+  1.0f, 0.0f,
+  0.0f, 0.0f,
+  1.0f, 1.0f,
 };
 
 const char * vshader_square = "\
@@ -449,7 +401,7 @@ int main(int, char **){
     canvas.SetMouseButton(MouseButton);
     canvas.SetKeyPress(KeyPress);
     canvas.SetOnPaint(OnPaint);
-    canvas.SetTimer(0.05, OnTimer);
+    canvas.SetTimer(0.01, OnTimer);
     //Show Window
     canvas.Initialize(width, height, "OpenGL Intro Demo");
     //Do our initialization
