@@ -59,7 +59,7 @@ const GLfloat vpoint[] = {
   //0.5f, -.5f, 0.0f,
   //0.5f, 0.5f, 0.0f,
   //-.5f, 0.5f, 0.0f //lower half of the near square
-  -.5f, -.5f, 0.5f,
+  /*-.5f, -.5f, 0.5f,
   -.5f, .5f, 0.5f,
   .5f, .5f, 0.5f, //upper half of the near square
   -.5f, -.5f, 0.5f,
@@ -99,12 +99,105 @@ const GLfloat vpoint[] = {
   .5f, .5f, -.5f, //upper half of back square
   -.5f, -.5f, -.5f,
   .5f, -.5f, -.5f,
-  .5f, .5f, -.5f //lower half of back square
+  .5f, .5f, -.5f*/ //lower half of back square
+    -0.5f,-0.5f,-0.5f,
+        -0.5f,-0.5f, 0.5f,
+        -0.5f, 0.5f, 0.5f,
+        0.5f, 0.5f,-0.5f,
+        -0.5f,-0.5f,-0.5f,
+        -0.5f, 0.5f,-0.5f,
+
+        0.5f,-0.5f, 0.5f,
+        -0.5f,-0.5f,-0.5f,
+        0.5f,-0.5f,-0.5f,
+        0.5f, 0.5f,-0.5f,
+        0.5f,-0.5f,-0.5f,
+        -0.5f,-0.5f,-0.5f,
+
+        -0.5f,-0.5f,-0.5f,
+        -0.5f, 0.5f, 0.5f,
+        -0.5f, 0.5f,-0.5f,
+        0.5f,-0.5f, 0.5f,
+        -0.5f,-0.5f, 0.5f,
+        -0.5f,-0.5f,-0.5f,
+
+        -0.5f, 0.5f, 0.5f,
+        -0.5f,-0.5f, 0.5f,
+        0.5f,-0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f,
+        0.5f,-0.5f,-0.5f,
+        0.5f, 0.5f,-0.5f,
+
+        0.5f,-0.5f,-0.5f,
+        0.5f, 0.5f, 0.5f,
+        0.5f,-0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f,
+        0.5f, 0.5f,-0.5f,
+        -0.5f, 0.5f,-0.5f,
+
+        0.5f, 0.5f, 0.5f,
+        -0.5f, 0.5f,-0.5f,
+        -0.5f, 0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f,
+        -0.5f, 0.5f, 0.5f,
+        0.5f,-0.5f, 0.5f
+};
+
+const GLfloat vtexcoord[] = {
+    1.0f, 1.0f,
+    0.0f, 1.0f,
+    0.0f, 0.0f, //upper half of the square
+
+    0.0f, 0.0f,
+    1.0f, 1.0f,
+    1.0f, 0.0f, //lower half of the square
+
+    0.0f, 0.0f,
+    1.0f, 1.0f,
+    1.0f, 0.0f,
+
+    0.0f, 0.0f,
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+
+    1.0f, 1.0f,
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+
+    0.0f, 0.0f,
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+
+    0.0f, 0.0f,
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+
+    0.0f, 0.0f,
+    1.0f, 1.0f,
+    1.0f, 0.0f,
+
+    1.0f, 1.0f,
+    0.0f, 0.0f,
+    0.0f, 1.0f,
+
+    0.0f, 0.0f,
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+
+    0.0f, 0.0f,
+    1.0f, 1.0f,
+    1.0f, 0.0f,
+
+    1.0f, 0.0f,
+    0.0f, 0.0f,
+    1.0f, 1.0f,
 };
 
 const char * vshader_square = "\
 #version 330 core \n\
 in vec3 vpoint; \
+in vec2 vtexcoord; \
+out vec2 uv; \
 uniform float rotation;\
 uniform mat4 view;\
 uniform mat4 pers;\
@@ -120,13 +213,18 @@ mat4 RotationMatrix(float rot){\
   R[2][2] = cos(rot);\
   return mat4(R); } \
 void main() { \
+  uv = vtexcoord; \
   gl_Position = final_Matrix * vec4(vpoint, 1); \
 }";
 //Fragment shader
 const char * fshader_square = "\
 #version 330 core \n \
 out vec3 color;\
-void main() { color = vec3(1, 0, 0);}";
+in vec2 uv;\
+uniform sampler2D tex;\
+void main() { color = texture(tex, uv).rgb;}\
+";
+//vec3(1, 0, 0);}";
 
 float Rotation = 0;
 float RotatingSpeed = 0.02;
@@ -141,6 +239,7 @@ void InitializeGL()
   //Generate Vertex Array Object
   glGenVertexArrays(1, &VertexArrayID);
   glBindVertexArray(VertexArrayID);
+
 
   //Now want to upload triangle data onto Graphics card
   //Vertex Buffer Object
@@ -164,6 +263,34 @@ void InitializeGL()
                         0,
                         0);
   RotBindingID = glGetUniformLocation(ProgramID, "rotation");
+
+  //Texture part
+  GLuint vtexcoordbuffer;
+  glGenBuffers(1, &vtexcoordbuffer);
+  glBindBuffer(GL_ARRAY_BUFFER, vtexcoordbuffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vtexcoord), vtexcoord, GL_STATIC_DRAW);
+  GLuint vtexcoord_bindingPosition = glGetAttribLocation(ProgramID, "vtexcoord");
+  glEnableVertexAttribArray(vtexcoord_bindingPosition);
+  glVertexAttribPointer(vtexcoord_bindingPosition, 2, GL_FLOAT, false, 0, 0);
+  //Load Texture
+  Texture teximage = LoadPNGTexture("texture.png");
+  //Upload this image onto GPU
+  GLuint texobject;
+  glGenTextures(1, &texobject);
+  glBindTexture(GL_TEXTURE_2D, texobject);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); //the i at the end means to integer
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, teximage.width, teximage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, teximage.dataptr);
+  //Activate the texture image
+  GLuint sampler_ID = glGetUniformLocation(ProgramID, "tex");
+  glUniform1i(sampler_ID, 0);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, texobject);
+  glEnable(GL_CULL_FACE);
+
+  //Matrix calcualtions
   Mp << 1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, (n+f)/n, -f,
