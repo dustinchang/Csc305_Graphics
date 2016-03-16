@@ -23,7 +23,7 @@ const GLfloat vnormal[] = {
   0, 0, 1,
   0, 0, 1,
   0, 0, 1,
-  0, 0, 1 //all normals are the same!
+  0, 0, 1 //all points have the same normal!
 };
 
 const char * vshader_square = " \
@@ -140,14 +140,14 @@ void InitializeGL()
 	glVertexAttribPointer(texcoordBindingPosition, 2, GL_FLOAT,
 		GL_FALSE, 0, (void *)0);
 
-  /// --- Upload normals
+  /// --- Upload normals, Bind the normals
   GLuint vnormalbuffer;
-  glGenBuffers(1, & vnormalbuffer);
+  glGenBuffers(1, &vnormalbuffer);
   glBindBuffer(GL_ARRAY_BUFFER, vnormalbuffer);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vnormal), vnormal, GL_STATIC_DRAW);
   GLuint vnormal_id = glGetAttribLocation(programID, "vnormal");
   glEnableVertexAttribArray(vnormal_id);
-  glVertexAttribPointer(vnormal_id, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glVertexAttribPointer(vnormal_id, 3, GL_FLOAT, GL_FALSE, 0, 0); //3 because of 3 coordinate vector this time
 
 	/// --- Load the texture image
 	Texture teximage = LoadPNGTexture("texture.png");
@@ -177,7 +177,7 @@ void InitializeGL()
 
   //Upload light_pos, camera_pos, and specular_color
   GLfloat Light_Pos[3];
-  Light_Pos[0] = 2;
+  Light_Pos[0] = 2; //just random place chosen
   Light_Pos[1] = 2;
   Light_Pos[2] = 5;
   GLuint light_pos_id = glGetUniformLocation(programID, "light_pos");
