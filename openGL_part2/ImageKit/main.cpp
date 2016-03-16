@@ -225,7 +225,7 @@ void InitializeGL()
   glEnableVertexAttribArray(vtexcoord_bindingPosition);
   glVertexAttribPointer(vtexcoord_bindingPosition, 2, GL_FLOAT, false, 0, 0);
   //Load Texture
-  Texture teximage = LoadPNGTexture("texture.png");
+  Texture teximage = LoadPNGTexture("/Users/dustin/Documents/Csc305_Graphics/openGL_part2/ImageKit/code.png");
   //Upload this image onto GPU
   GLuint texobject;
   glGenTextures(1, &texobject);
