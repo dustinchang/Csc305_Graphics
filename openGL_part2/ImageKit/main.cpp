@@ -145,10 +145,52 @@ const GLfloat vtexcoord[] = {
   1.0f, 1.0f,
 };
 
+const GLfloat vnormal[] = {
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1, //all points have the same normal!
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1, //all points have the same normal!
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1, //all points have the same normal!
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1, //all points have the same normal!
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1, //all points have the same normal!
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1,
+  0, 0, 1 //all points have the same normal!
+};
+
 const char * vshader_square = "\
 #version 330 core \n\
+in vec3 vnormal;\
 in vec3 vpoint; \
 in vec2 vtexcoord; \
+out vec3 object_pos;\
+out vec3 normal;\
 out vec2 uv; \
 uniform float rotation;\
 uniform mat4 view;\
@@ -167,16 +209,38 @@ mat4 RotationMatrix(float rot){\
 void main() { \
   uv = vtexcoord; \
   gl_Position = final_Matrix * vec4(vpoint, 1); \
+  object_pos = gl_Position.xyz;\
+  normal = vnormal;\
 }";
 //Fragment shader
 const char * fshader_square = "\
 #version 330 core \n \
-out vec3 color;\
 in vec2 uv;\
+in vec3 object_pos;\
+in vec3 normal;\
+uniform vec3 light_pos;\
+uniform vec3 camera_pos;\
+uniform vec3 specular_color;\
+out vec3 color; \
 uniform sampler2D tex;\
-void main() { color = texture(tex, uv).rgb;}\
+void main() {\
+  vec3 diffuse_color = texture(tex, uv).rgb;\
+  vec3 ambient_color = diffuse_color * 0.1;\
+  vec3 light_vec = light_pos - object_pos;\
+  light_vec = normalize(light_vec);\
+  float ndotl = dot(normal, light_vec);\
+  if(ndotl > 0) {\
+    vec3 eye_vec = camera_pos - object_pos;\
+    eye_vec = normalize(eye_vec);\
+    vec3 h = eye_vec + light_vec;\
+    h = normalize(h);\
+    float hdotn= dot(h, normal);\
+    float specular_term = pow(hdotn, 36);\
+    color = ambient_color + diffuse_color * ndotl + specular_color * specular_term;\
+  }\
+  else color = ambient_color;\
+}\
 ";
-//vec3(1, 0, 0);}";
 
 float Rotation = 0;
 float RotatingSpeed = 0.02;
@@ -224,6 +288,15 @@ void InitializeGL()
   GLuint vtexcoord_bindingPosition = glGetAttribLocation(ProgramID, "vtexcoord");
   glEnableVertexAttribArray(vtexcoord_bindingPosition);
   glVertexAttribPointer(vtexcoord_bindingPosition, 2, GL_FLOAT, false, 0, 0);
+  /// --- Upload normals, Bind the normals, for specular part
+  GLuint vnormalbuffer;
+  glGenBuffers(1, &vnormalbuffer);
+  glBindBuffer(GL_ARRAY_BUFFER, vnormalbuffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vnormal), vnormal, GL_STATIC_DRAW);
+  GLuint vnormal_id = glGetAttribLocation(ProgramID, "vnormal");
+  glEnableVertexAttribArray(vnormal_id);
+  glVertexAttribPointer(vnormal_id, 3, GL_FLOAT, GL_FALSE, 0, 0); //3 because of 3 coordinate vector this time
+
   //Load Texture
   Texture teximage = LoadPNGTexture("/Users/dustin/Documents/Csc305_Graphics/openGL_part2/ImageKit/code.png");
   //Upload this image onto GPU
@@ -241,6 +314,28 @@ void InitializeGL()
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texobject);
   glEnable(GL_CULL_FACE);
+
+  //Upload light_pos, camera_pos, and specular_color
+  GLfloat Light_Pos[3];
+  Light_Pos[0] = 2; //just random place chosen
+  Light_Pos[1] = 2;
+  Light_Pos[2] = 5;
+  GLuint light_pos_id = glGetUniformLocation(ProgramID, "light_pos");
+  glUniform3f(light_pos_id, Light_Pos[0], Light_Pos[1], Light_Pos[2]);
+  //camera_pos
+  GLfloat Camera_Pos[3];
+  Camera_Pos[0] = 0;
+  Camera_Pos[1] = 0;
+  Camera_Pos[2] = 1;
+  GLuint camera_pos_id = glGetUniformLocation(ProgramID, "camera_pos");
+  glUniform3f(camera_pos_id, Camera_Pos[0], Camera_Pos[1], Camera_Pos[2]);
+  //specular_color
+  GLfloat Specular_Color[3];
+  Specular_Color[0] = 1;
+  Specular_Color[1] = 1;
+  Specular_Color[2] = 1;
+  GLuint specular_pos_id = glGetUniformLocation(ProgramID, "specular_color");
+  glUniform3f(specular_pos_id, Specular_Color[0], Specular_Color[1], Specular_Color[2]);
 
   //Matrix calcualtions
   Mp << 1, 0, 0, 0,
