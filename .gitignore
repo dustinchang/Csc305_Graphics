@@ -3,3 +3,4 @@
 *-Desktop-Default/
 .gitignore
 *-build/
+*.user*

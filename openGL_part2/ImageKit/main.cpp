@@ -298,7 +298,7 @@ void InitializeGL()
   glVertexAttribPointer(vnormal_id, 3, GL_FLOAT, GL_FALSE, 0, 0); //3 because of 3 coordinate vector this time
 
   //Load Texture
-  Texture teximage = LoadPNGTexture("/Users/dustin/Documents/Csc305_Graphics/openGL_part2/ImageKit/code.png");
+  Texture teximage = LoadPNGTexture("/Volumes/dustinch/Csc305/Csc305_Graphics/openGL_part2/ImageKit/code.png");
   //Upload this image onto GPU
   GLuint texobject;
   glGenTextures(1, &texobject);
@@ -403,6 +403,11 @@ void OnPaint() {
   //Draw
   glUniform1f(RotBindingID, Rotation);
   glDrawArrays(GL_TRIANGLES, 0, 12*3); //6 vertices cause 2 triangle
+  //glDrawArrays again after adding a new matrix with different translations HERE
+  //Chap6 transformations
+
+
+
   //cleanup
   glUseProgram(0);
   glBindVertexArray(0);
