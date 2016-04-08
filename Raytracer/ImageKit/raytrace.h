@@ -25,8 +25,8 @@ void SetColor(Pixel & px, Vector3 CalculatedColor)
 
 Vector3 AmbientColour(20, 20, 20);
 Vector3 DiffuseColour(200, 200, 200);
-Vector3 BackgroundColor(25,25,25);
-Vector3 Light(-128, -500, -128);
+Vector3 BackgroundColor(25,25,25); //0,153,153
+Vector3 Light(-128, -500, -128); //-128, -500, -575
 Vector3 Light2(-384, -500, -300);
 
 /*Provide Diffuse Shading, while also passing in other colors*/
@@ -76,6 +76,7 @@ void RayTraceSphere(Image * pImage)
 {
     //Creation of objects
     std::vector<Object *> pObjectList;
+    //From master
     Plane plane(Vector3(0, 775, 0), Vector3(0, -3, 1), Vector3(102, 205, 170));
     Sphere sphere(Vector3(500, 384, 200), //center
                   90,//radius
@@ -86,6 +87,23 @@ void RayTraceSphere(Image * pImage)
     pObjectList.push_back(&sphere2);
     pObjectList.push_back(&sphere3);
     pObjectList.push_back(&plane);
+    //End of master
+
+    //Start of modified
+    /*Floor floor(Vector3(0, 512, 0), Vector3(100, 256, 0), Vector3(535, 512, 0), Vector3(204, 204, 0), Vector3(256, 350, 450));
+    Floor floor2(Vector3(100, 256, 0), Vector3(400, 256, 0), Vector3(512, 512, 0), Vector3(204, 204, 0), Vector3(256, 350, 450));
+    Plane plane(Vector3(0, 850, 0), Vector3(0, -3, 1), Vector3(102, 205, 170));
+    Sphere sphere(Vector3(250, 225, -50), //center
+                  50,//radius
+                  Vector3(220, 20, 60));//Color
+    Sphere sphere2(Vector3(50, 250, 375), 150, Vector3(0, 153, 153));
+    pObjectList.push_back(&floor);
+    pObjectList.push_back(&floor2);
+    //pObjectList.push_back(&plane);
+    pObjectList.push_back(&sphere);
+    //pObjectList.push_back(&sphere2);
+    //pObjectList.push_back(&plane);
+    *///End of modified
 
     Vector3 Camera(256, 256, -200);	//Was z=-400
 
