@@ -1,10 +1,15 @@
 //This is a simple ray tracing example showing how to use the Image
 #pragma once
-#include "Image.h"
 #include <vector>
-#include "sphere.h"
-#include "plane.h"
 #include <iostream>
+#include "Image.h"
+#include "light.h"
+#include "object.h"
+#include "plane.h"
+#include "sphere.h"
+
+std::vector<Object *> ObjVec;
+std::vector<Light *> lightsVec;
 
 void SetColor(Pixel & px, Vector3 CalculatedColor)
 {
@@ -72,7 +77,7 @@ bool ifIntersection(Vector3 *Intersection, bool HasIntersection, Vector3 Directi
 }
 
 //Main raytrace function
-void RayTraceSphere(Image * pImage)
+void RayTrace_Image(Image * pImage)
 {
     //Creation of objects
     std::vector<Object *> pObjectList;
