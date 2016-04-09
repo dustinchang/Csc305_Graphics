@@ -11,6 +11,9 @@
 std::vector<Object *> ObjVec;
 std::vector<Light *> lightsVec;
 
+//16 rays/px anit-aliasing, done for each 2x2 section
+Pixel Sect1, Sect2, Sect3, Sect4;
+
 void SetColor(Pixel & px, Vector3 CalculatedColor)
 {
     if (CalculatedColor.x < 0) px.R = 0;
@@ -76,22 +79,67 @@ bool ifIntersection(Vector3 *Intersection, bool HasIntersection, Vector3 Directi
   }
 }
 
+//Add the directions
+void addDirections(Vector3 Camera, Vector3 D1, Vector3 D2, Vector3 D3, Vector3 D4, int sectNum, float LightIntensity, ) {
+  //Calculates the sections
+  Direction1 = Add(PixelPosition,D1);
+  Direction1 = Minus(Direction1,Camera);
+  Direction1 = Normalize(Direction1);
+  Direction2 = Add(PixelPosition,D2);
+  Direction2 = Minus(Direction2,Camera);
+  Direction2 = Normalize(Direction2);
+  Direction3 = Add(PixelPosition,D3);
+  Direction3 = Minus(Direction3,Camera);
+  Direction3 = Normalize(Direction3);
+  Direction4 = Add(PixelPosition,D4);
+  Direction4 = Minus(Direction4,Camera);
+  Direction4 = Normalize(Direction4);
+
+  switch (sectNum) {
+    case 1:
+      Sect1 = AveragePixel(ComputeRay(Camera, Direction1, LightIntensity, j),ComputeRay(Camera, Direction2, LightIntensity, j), ComputeRay(Camera, Direction3, LightIntensity, j),ComputeRay(Camera, Direction4, LightIntensity, j));
+      break;
+    case 2:
+      Sect2 =
+      break;
+  }
+
+}
+
+
 //Main raytrace function
 void RayTrace_Image(Image * pImage)
 {
-    //Creation of objects
-    std::vector<Object *> pObjectList;
+  //Creation of Lights
+  Light L1(Vector3(120,120,0));
+  LightList.push_back(&L1);
+  Light L2(Vector3(200,256,0));
+  LightList.push_back(&L2);
+  float LightIntensity = 1.0;
+  /////Creation of objects
+  ///std::vector<Object *> pObjectList;
+  //Camera
+  Vector3 Camera(256, 256, -200);	//Was z=-400
+  //Planes for Cornell box
+  Plane bottom(Vector3(0,1,0), Vector3(256,0,0), Vector3(252,251,250));
+
+  //Put planes into ObjVec
+  ObjVec.push_back(&bottom);
+
+
+
+
     //From master
-    Plane plane(Vector3(0, 775, 0), Vector3(0, -3, 1), Vector3(102, 205, 170));
-    Sphere sphere(Vector3(500, 384, 200), //center
-                  90,//radius
-                  Vector3(220, 20, 60));//Color
-    Sphere sphere2(Vector3(50, 250, 375), 150, Vector3(0, 153, 153));
-    Sphere sphere3(Vector3(0, 425, 165), 75, Vector3(255, 153, 153));
-    pObjectList.push_back(&sphere);
-    pObjectList.push_back(&sphere2);
-    pObjectList.push_back(&sphere3);
-    pObjectList.push_back(&plane);
+  ///  Plane plane(Vector3(0, 775, 0), Vector3(0, -3, 1), Vector3(102, 205, 170));
+  ///  Sphere sphere(Vector3(500, 384, 200), //center
+  ///                90,//radius
+  ///                Vector3(220, 20, 60));//Color
+  ///  Sphere sphere2(Vector3(50, 250, 375), 150, Vector3(0, 153, 153));
+  ///  Sphere sphere3(Vector3(0, 425, 165), 75, Vector3(255, 153, 153));
+  ///  pObjectList.push_back(&sphere);
+  ///  pObjectList.push_back(&sphere2);
+  ///  pObjectList.push_back(&sphere3);
+  ///  pObjectList.push_back(&plane);
     //End of master
 
     //Start of modified
@@ -110,7 +158,7 @@ void RayTrace_Image(Image * pImage)
     //pObjectList.push_back(&plane);
     *///End of modified
 
-    Vector3 Camera(256, 256, -200);	//Was z=-400
+
 
     //Cycle through image pixels
     for (int i = 0; i < 512; ++ i)
@@ -119,8 +167,26 @@ void RayTrace_Image(Image * pImage)
             //Set up the ray we're tracing: R = O + tD;
             Pixel px;
             Vector3 PixelPosition((float)i, (float)j, 0);
-			      Vector3 Direction = Minus(PixelPosition, Camera);
-			      Direction = Normalize(Direction);
+			      //Vector3 Direction = Minus(PixelPosition, Camera);
+			      //Direction = Normalize(Direction);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             float t_min = 999999;
             Vector3 Normal_min;
