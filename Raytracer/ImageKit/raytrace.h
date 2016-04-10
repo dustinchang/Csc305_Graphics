@@ -8,6 +8,8 @@
 #include "object.h"
 #include "plane.h"
 #include "sphere.h"
+#include "Eigen/Dense"
+using namespace Eigen;
 using namespace std;
 
 #define LIGHTS 2
@@ -86,9 +88,24 @@ Pixel AveragePixel(Pixel a, Pixel b, Pixel c, Pixel d){
     return px;
 }
 
-Sphere translate_sphere(Sphere sphere) {
+Sphere translate_sphere(Sphere sphere, int tx, int ty, int tz) {
+  //Helpful sites Udemy site
+  //http://www.codinglabs.net/article_world_view_projection_matrix.aspx
   //Will need to matrix multiply the passed spheres
   //TODO might use eigen, too lazy to write my own function right now
+  Matrix4f translation_mat;
+  translation_mat << 1, 0, 0, -tx,
+                              0, 1, 0, -ty,
+                              0, 0, 1, -tz,
+                              0, 0, 0, 1;
+  Vector4f sphere_vec;
+  sphere_vec << sphere.Center.x, sphere.Center.y, sphere.Center.z, 1;
+  Vector4f resulting_sphere;
+  //Compute new point
+  resulting_sphere = translation_mat*sphere_vec;
+  Vector3 result_vec(resulting_sphere(0), resulting_sphere(1), resulting_sphere(2));
+  Sphere result_sphere(result_vec, sphere.Radius, sphere.color);
+  return result_sphere;
 }
 
 Pixel Shade(Vector3 SurfCol, Vector3 Normal, Vector3 Direction, Vector3 Intersection, float LightIntensity) {
@@ -255,14 +272,17 @@ void RayTrace_Image(Image * pImage)
   //              90,//radius
   //              Vector3(220, 20, 60));//Color
   Sphere s1(Vector3(135,320,170), 80, Vector3(20,20,20));
-  Sphere s2(Vector3(200,40,120), 40, Vector3(120,170,210));
-  Sphere s3(Vector3(300,40,100), 38, Vector3(142,39,38));
-  Sphere s4(Vector3(400,50,160), 50, Vector3(80,186,168));
+  Sphere s2(Vector3(200,40,120), 40, Vector3(0,255,255));
+  Sphere s3(Vector3(300,40,100), 38, Vector3(222,210,70));
+  Sphere s4(Vector3(400,50,160), 50, Vector3(255,0,255));
+  //Translate s2 and use it as s5
+  Sphere s5 = translate_sphere(s2, -100, -275, 20);
   //Add to ObjVec
   ObjVec.push_back(&s1);
   ObjVec.push_back(&s2);
   ObjVec.push_back(&s3);
   ObjVec.push_back(&s4);
+  ObjVec.push_back(&s5);
   //Planes for Cornell box
   Plane bottom(Vector3(256,0,0), Vector3(0,1,0), Vector3(252, 0, 128));
   Plane left(Vector3(0,256,0), Vector3(1,0,0), Vector3(0, 128, 128));//136,141,147));
