@@ -42,11 +42,11 @@ void SetColor(Pixel & px, Vector3 CalculatedColor)
 Vector3 AmbientColour(20, 20, 20);
 Vector3 DiffuseColour(200, 200, 200);
 Vector3 BackgroundColor(25,25,25); //0,153,153
-Vector3 Light(-128, -500, -128); //-128, -500, -575
-Vector3 Light2(-384, -500, -300);
+//Switched to obj LIGHTS    Vector3 Light(-128, -500, -128); //-128, -500, -575
+//Switched to obj LIGHTS    Vector3 Light2(-384, -500, -300);
 
 /*Provide Diffuse Shading, while also passing in other colors*/
-Pixel DiffuseShade(Vector3 Surface, Vector3 Normal, Vector3 colors)
+/*Pixel DiffuseShade(Vector3 Surface, Vector3 Normal, Vector3 colors)
 {
     //These colours will give the sphere a red appearance
     Pixel shade;
@@ -61,7 +61,7 @@ Pixel DiffuseShade(Vector3 Surface, Vector3 Normal, Vector3 colors)
     }
     SetColor(shade, PixelColour);
     return shade;
-}
+}//End of DiffuseShade*/
 
 //If there is an Intersection set appropriate calculations, whether there is no intersection, an intersection, or an intersection that creates a shadow
 bool ifIntersection(Vector3 *Intersection, bool HasIntersection, Vector3 Direction, float t_min, Vector3 Camera, Vector3 Light, std::vector<Object *>& pObjectList, Vector3 *colors) {
@@ -109,6 +109,22 @@ Pixel AddColors(Pixel px, Pixel refl){
     return a;
 }
 
+//Minus Pixel colors and prevent going lower than 0
+Pixel MinusColors(Pixel px, Pixel refl){
+  int x,y,z;
+  Pixel px2;
+  x = px.R - refl.R;
+  y = px.G - refl.G;
+  z = px.B - refl.B;
+  if(x < 0) x = 0;
+  if(y < 0) y = 0;
+  if(z < 0) z = 0;
+  px2.R = x;
+  px2.G = y;
+  px2.B = z;
+  return px2;
+}
+
 //Returns Avg Color of 4 Pixels
 Pixel AveragePixel(Pixel a, Pixel b, Pixel c, Pixel d){
     Pixel x;
@@ -127,7 +143,7 @@ Pixel Shade(Vector3 SurfCol, Vector3 Normal, Vector3 Direction, Vector3 Intersec
   for(int i=0; i<LightsVec.size(); i++) {
     //Labertain
     Vector3 L = Normalize(Minus(LightsVec[i]->Point, Intersection));
-    cout << "DotProduct=" << DotProduct(Normal, L) << endl;
+    //cout << "DotProduct=" << DotProduct(Normal, L) << endl;
     float Intensity_Max = LightIntensity * max((float)0, DotProduct(Normal, L));
     Vector3 OutCol = MultiplyScalar(SurfCol, Intensity_Max);
 
@@ -219,7 +235,7 @@ Pixel DetermineRay(Vector3 StartPoint, Vector3 Direction, float LightIntensity, 
         Pixel h;
         if(sin(M_PI*j/8)>0){
             SetColor(h, stripecolor);
-            //px = MinusColors(px,h);
+            px = MinusColors(px,h);
         }
     }
   }//if t > 0
@@ -275,27 +291,51 @@ void RayTrace_Image(Image * pImage)
   Light L2(Vector3(200,256,0));
   LightsVec.push_back(&L2);
   float LightIntensity = 1.0;
-  /////Creation of objects
-  ///std::vector<Object *> pObjectList;
   //Camera
   Vector3 Camera(256, 256, -200);	//Was z=-400
+  //SPHERES
+  Sphere s1(Vector3(500, 384, 200), //center
+                90,//radius
+                Vector3(220, 20, 60));//Color
+  Sphere s2(Vector3(200,40,120), 40, Vector3(120,170,210));
+  Sphere s3(Vector3(300,40,100), 38, Vector3(142,39,38));
+  Sphere s4(Vector3(400,50,160), 50, Vector3(80,186,168));
+  ObjVec.push_back(&s1);
+  ObjVec.push_back(&s2);
+  ObjVec.push_back(&s3);
+  ObjVec.push_back(&s4);
+
   //Planes for Cornell box
   Plane bottom(Vector3(0,1,0), Vector3(256,0,0), Vector3(252,251,250));
+  Plane Left(Vector3(1,0,0), Vector3(0,256,0), Vector3(136,141,147));
+  Plane Right(Vector3(-1,0,0), Vector3(512,256,0), Vector3(213,77,48));
+  Plane Top(Vector3(0,-1,0), Vector3(256,512,0), Vector3(1,56,75));
+  Plane Back(Vector3(0,0,-1), Vector3(0,256,220), Vector3(136,141,147));
 
   //Put planes into ObjVec
   ObjVec.push_back(&bottom);
+  ObjVec.push_back(&Left);
+  ObjVec.push_back(&Right);
+  ObjVec.push_back(&Top);
+  ObjVec.push_back(&Back);
 
   refl_obj = 0;
 
   //Cycle through image pixels
-  for (int i = 0; i < 512; ++ i)
+  for (int i = 0; i < 512; ++ i) {
     for (int j = 0; j < 512; ++j)
     {
       Vector3 PixelPosition((float)i, (float)j, 0);
-      addDirections(Camera, PixelPosition, Vector3(-0.375, 0.375, 0))
+      //Add all sections
+      addDirections(Camera, PixelPosition, Vector3(-0.375, 0.375, 0), Vector3(-0.125, 0.375, 0), Vector3(-0.375, 0.125, 0), Vector3(-0.125, 0.125, 0), 1, LightIntensity, j);
+      addDirections(Camera, PixelPosition, Vector3(0.125, 0.375, 0), Vector3(0.375, 0.375, 0), Vector3(0.125, 0.125, 0), Vector3(0.375, 0.125, 0), 1, LightIntensity, j);
+      addDirections(Camera, PixelPosition, Vector3(-0.375, -0.125, 0), Vector3(-0.125, -0.125, 0), Vector3(-0.375, -0.375, 0), Vector3(-0.125, -0.375, 0), 1, LightIntensity, j);
+      addDirections(Camera, PixelPosition, Vector3(0.125, -0.125, 0), Vector3(0.375, -0.125, 0), Vector3(0.125, -0.375, 0), Vector3(0.375, -0.375, 0), 1, LightIntensity, j);
 
+      //Get Average of the 4 section colours
+      (*pImage)(i, 511-j) = AveragePixel(Sect1,Sect2, Sect3, Sect4);
     }
-  }
+  }//End of outer for loop
 
 
 
@@ -402,6 +442,6 @@ void RayTrace_Image(Image * pImage)
       //Set the pixel image
 			///(*pImage)(i, j) = px;
       //Get Average of the 4 section colours
-      (*pImage)(i, 511-j) = AveragePixel(Section1,Section2, Section3, Section4);
-		}
-}
+    //  (*pImage)(i, 511-j) = AveragePixel(Section1,Section2, Section3, Section4);
+		//}
+}//End of RayTrace_Image
