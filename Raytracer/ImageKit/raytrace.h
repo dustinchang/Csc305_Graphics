@@ -88,6 +88,7 @@ Pixel AveragePixel(Pixel a, Pixel b, Pixel c, Pixel d){
 
 Sphere translate_sphere(Sphere sphere) {
   //Will need to matrix multiply the passed spheres
+  //TODO might use eigen, too lazy to write my own function right now
 }
 
 Pixel Shade(Vector3 SurfCol, Vector3 Normal, Vector3 Direction, Vector3 Intersection, float LightIntensity) {
