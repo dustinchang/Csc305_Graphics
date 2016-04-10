@@ -91,8 +91,6 @@ Pixel AveragePixel(Pixel a, Pixel b, Pixel c, Pixel d){
 Sphere translate_sphere(Sphere sphere, int tx, int ty, int tz) {
   //Helpful sites Udemy site
   //http://www.codinglabs.net/article_world_view_projection_matrix.aspx
-  //Will need to matrix multiply the passed spheres
-  //TODO might use eigen, too lazy to write my own function right now
   Matrix4f translation_mat;
   translation_mat << 1, 0, 0, -tx,
                               0, 1, 0, -ty,
