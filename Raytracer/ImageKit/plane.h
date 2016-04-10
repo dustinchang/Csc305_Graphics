@@ -19,7 +19,7 @@ public:
         float bot = - (DotProduct(Direction,norms));
         float temp = top / bot;
 
-        if(temp > 0.0001) {
+        if(temp > 0) {
             *t_out = temp;
             *normal_out = norms;
             *col_out = color;
